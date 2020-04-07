@@ -6,7 +6,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.net.InetAddress;
 import java.net.URLDecoder;
+import java.net.UnknownHostException;
 import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -524,7 +526,7 @@ public class GenerateNumberAction extends BaseAction {
 		System.out.println(red[0]+"违法信息"+red[1]);
 		// 将打印参数信息以JSON格式返回
 		JSONObject objPrint = new JSONObject();
-		if(red[0]!=null&&red[0].equals("1")){
+		if(red[0]==null || red[0].equals("1")){
 			if(red[1]!=null&&red[1].equals("0")){
 		if (info.isSuccess()) {
 			objPrint.put("serialNum", info.getSerialNum());
@@ -743,24 +745,31 @@ public class GenerateNumberAction extends BaseAction {
 	
 	private String showWfMessage(String sfzmhm,String hpzm,String hpzl) {
 		CacheManager cacheManager = CacheManager.getInstance();
+		String deptCode = cacheManager.getOfDeptCache("deptCode");
 		String isUseInterface = cacheManager.getSystemConfig("isUseInterface");//是否启用接口
 		String iscywf = cacheManager.getSystemConfig("iscywf");
 		String cywffs = cacheManager.getSystemConfig("cywffs");
 		String jklx = cacheManager.getSystemConfig("jklx");
 		String jkbj="1",wfcs="0",context="";
+		String sbkzjsjip = "";//设备控制计算机ip
 		Map<String, Object> result = new HashMap<String, Object>();
 		if ("0".equals(iscywf) && "2".equals(cywffs) && sfzmhm.length()>=15) {
-			if ("0".equals(isUseInterface) && "0".equals(jklx)) {
+			if ("0".equals(isUseInterface) && "1".equals(jklx)) {
 				try {
-					result = TrffUtils.query_WfMessage("","",sfzmhm,"","");
+					sbkzjsjip = InetAddress.getLocalHost().getHostAddress().toString();
+				} catch (UnknownHostException e2) {
+					e2.printStackTrace();
+				}
+				try {
+					result = TrffUtils.query_WfMessage("","",sfzmhm,"","",deptCode,sbkzjsjip);
 					if (!result.isEmpty()) {
 						Map<String, String> map = (Map<String, String>) result
 								.get("WfMessage");
 						jkbj = map.get("jkbj");
 					}
-					if (jkbj != null && jkbj.equals("1")) {// 查询机动车违法
+					if (jkbj == null || jkbj.equals("1")) {// 查询机动车违法
 						if (hpzl != null && !hpzl.equals("")) {
-							result = TrffUtils.query_QueryJDCWf(hpzl, hpzm);
+							result = TrffUtils.query_QueryJDCWf(hpzl, hpzm,deptCode,sbkzjsjip);
 							if (!result.isEmpty()) {
 								Map<String, String> map = (Map<String, String>) result
 										.get("JDCWfMessage");

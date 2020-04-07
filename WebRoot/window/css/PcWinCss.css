@@ -1,6 +1,6 @@
 .inner {width: 1440px;}
 body,html {height: 100%;}
-.outer {
+.outer1 {
 	background: url(../../images/queue/bg_jh_qz_all.jpg) repeat;
 	height: 100%;
 	position: relative;
@@ -32,7 +32,7 @@ body,html {height: 100%;}
 	font-weight:600;
 }
 
-.top {
+/* .top1 {
 	position: absolute;
 	height: 41px;
 	left: 0;
@@ -41,19 +41,19 @@ body,html {height: 100%;}
 	background: url(../../images/queue/bg_top.jpg) no-repeat;
 }
 
-.bottom {
+.bottom1 {
 	position: absolute;
 	height: 39px;
 	left: 0;
 	bottom: 0;
 	width: 100%;
 	background: url(../../images/queue/bg_bottom.jpg) no-repeat;
-}
+} */
 
 .inner {
 	width: 1336px;
-	height: 768px;
-	top: 0px;
+	height: 768px; 
+	top: 0px; 
 	z-index: 2;
 }
 
@@ -158,7 +158,7 @@ body,html {height: 100%;}
 
 .tab2 th {text-align: center; border-right: 1px solid #C7B38E;}
 .tab2 td {padding-left: 10px;}
-.div4 {position: absolute; left: 964px; top: 655px;}
+/* .div4 {position: absolute; left: 964px; top: 655px;} */
 .div4 p {height: 80px;}
 .pj_1,.pj_2,.pj_3,.pj_4 {
 	display: block;

@@ -67,6 +67,15 @@
 								</tr>
 								<tr>
 									<td width="20%" height="35" bgcolor="#FFFFFF" class="tableheader1">
+										双屏ip
+									</td>
+									<td width="80%" height="35" bgcolor="#F1F9FD">
+										&nbsp;
+										<input type="text" id="WSIp" name="WSIp" value="${employee.WSIp }" style="width: 300px" />
+									</td>
+								</tr>
+								<tr>
+									<td width="20%" height="35" bgcolor="#FFFFFF" class="tableheader1">
 										座右铭
 									</td>
 									<td width="80%" height="35" bgcolor="#F1F9FD">

@@ -880,4 +880,60 @@ public class QueryCallNumber extends BaseAction {
 		request.setAttribute("action", "hangup_new.action");
 		return "success";
 	}
+	
+	public String getrzdbz()
+	        throws Exception
+	    {	
+			CacheManager cacheManager = CacheManager.getInstance();
+			String deptCode = cacheManager.getOfDeptCache("deptCode");
+			String deptHall = cacheManager.getOfDeptCache("deptHall");
+	        HttpServletRequest request = getRequest();
+	        String ksrq = StringUtils.trimToEmpty(request.getParameter("ksrq"));
+	        String jsrq = StringUtils.trimToEmpty(request.getParameter("jsrq"));
+	        String xm = StringUtils.trimToEmpty(request.getParameter("xm"));
+	        String IDNumber = StringUtils.trimToEmpty(request.getParameter("IDNumber"));
+	        String Serial = StringUtils.trimToEmpty(request.getParameter("SerialNum"));
+	        String SerialNum = null;
+	        if(!"".equals(Serial)){
+	        	 SerialNum = deptCode + deptHall + Serial;
+	        }
+	        String ckip = StringUtils.trimToEmpty(request.getParameter("barId"));
+	        String tjms = StringUtils.trimToEmpty(request.getParameter("tjms"));
+	        Number number = new Number();
+	        number.setIDNumber(IDNumber);
+	        number.setSerialNum(SerialNum);
+	        List<Number> list = numberService.getrzdbz(tjms, ckip, xm, ksrq, jsrq, number);
+	        //编译证件
+	        if(!"null".equals(list) && list.size()>0){
+		        for(Number num:list){
+		        	String operate ="<a onclick=queryDetail('" + num.getId()
+							+ "')><img src='/queue/images/button_ck.jpg' style='cursor:hand'/></a>";
+		        			num.setOperation(operate);
+							if (!"".equals(num.getSfzphoto()) && null != num.getSfzphoto()) {
+								num.setSfzphotoStr("有");
+							}else {
+								num.setSfzphotoStr("无");
+							}
+							if (!"".equals(num.getQuhaoPhoto()) && null != num.getQuhaoPhoto()) {
+								num.setQuhaoPhotoStr("有");
+							}else{
+								num.setQuhaoPhotoStr("无");
+							}
+							if ("".equals(num.getNameA()) || null == num.getNameA()) {
+								num.setNameA("非身份证取号");
+							}
+							if (!"".equals(num.getRzdbz()) && null != num.getRzdbz()) {
+								if(num.getRzdbz().equals("90")){
+									num.setRzdbz("通过");
+								}else {
+									num.setRzdbz("不通过");
+								}
+							}else{
+								num.setRzdbz("不通过");
+							}
+		        }
+	        }
+	        request.setAttribute("list", list);
+	        return "success";
+	    }
 }

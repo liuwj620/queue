@@ -206,8 +206,8 @@ public class NumberDaoImpl extends BaseDao<Number, String> implements INumberDao
 	
 	public int updateRzdbz(Number number) throws UpdateException{
 		try {
-			String[] properties = {"rzdbz"};
-			Object[] propertyValues = {number.getRzdbz()};
+			String[] properties = {"rzdbz","serialNum","quhaoPhoto"};
+			Object[] propertyValues = {number.getRzdbz(),number.getSerialNum(),number.getQuhaoPhoto()};
 			return updateByMap(number.getId(), properties, propertyValues, "updateRzdbz");
 		} catch (Exception e) {
 			throw new UpdateException(e.getMessage());
@@ -802,4 +802,47 @@ public class NumberDaoImpl extends BaseDao<Number, String> implements INumberDao
 	public void updateWanJie(Number number) throws Exception {
 		 this.getSqlMapClientTemplate().update("Number.updateWanJie", number);
 	}
+
+	public List<Number> getrzdbz(String tjms, String ckip, String sfzxm, String ksrq, String jsrq, Number number)
+	        throws Exception
+	    {
+	        if(tjms.equals("0"))
+	        {
+	            if(ksrq != "" && jsrq != "")
+	            {
+	                ksrq = (new StringBuilder("to_date('")).append(ksrq).append(" 00:00:00','yyyy-mm-dd hh24:mi:ss')").toString();
+	                jsrq = (new StringBuilder("to_date('")).append(jsrq).append(" 23:59:59','yyyy-mm-dd hh24:mi:ss')").toString();
+	            }
+	        } else
+	        if(tjms.equals("1"))
+	        {
+	            String currentTime = DateUtils.dateToString("yyyy-MM-dd");
+	            String currentTime1 = (new StringBuilder("'")).append(currentTime).append(" 00:00:00").append("'").toString();
+	            String currentTime2 = (new StringBuilder("'")).append(currentTime).append(" 23:59:59").append("'").toString();
+	            ksrq = (new StringBuilder("to_date(")).append(currentTime1).append(",'yyyy-mm-dd hh24:mi:ss')").toString();
+	            jsrq = (new StringBuilder("to_date(")).append(currentTime2).append(",'yyyy-mm-dd hh24:mi:ss')").toString();
+	        } else
+	        if(tjms.equals("2"))
+	        {
+	            ksrq = "to_date(to_char(sysdate,'YYYY-MM')||'01 00:00:00','YYYY-MM-DD hh24:mi:ss')";
+	            jsrq = "to_date(to_char(last_day(sysdate),'yyyy-mm-dd')||' 23:59:59','yyyy-mm-dd hh24:mi:ss')";
+	        } else
+	        if(tjms.equals("3"))
+	        {
+	            ksrq = "to_date(to_char(trunc(sysdate, 'Q'),'yyyy-mm-dd')||' 00:00:00','yyyy-mm-dd hh24:mi:ss')";
+	            jsrq = "to_date(to_char(add_months(TRUNC(SYSDATE,'Q'),+3)-1,'YYYY-MM-DD')||' 23:59:59', 'yyyy-mm-dd hh24:mi:ss')";
+	        } else
+	        if(tjms.equals("4"))
+	        {
+	            ksrq = "to_date(to_char(trunc(sysdate,'yyyy'),'yyyy-mm-dd')||' 00:00:00','yyyy-mm-dd hh24:mi:ss')";
+	            jsrq = "to_date(to_char(add_months(trunc(sysdate,'yyyy'),12)-1,'yyyy-mm-dd')||' 23:59:59','yyyy-mm-dd hh24:mi:ss')";
+	        }
+	        String properties[] = {
+	            "ckip", "sfzxm", "ksrq", "jsrq", "sfzid","SerialNum"
+	        };
+	        String propertyValues[] = {
+	            ckip, sfzxm, ksrq, jsrq, number.getIDNumber(),number.getSerialNum()
+	        };
+	        return findByMap(properties, propertyValues, "", "", "getrzdbz");
+	    }
 }

@@ -67,6 +67,8 @@ public class InitCacheListener implements ServletContextListener {
 		cacheManager.addOfDeptCache("masterkeys", p.getProperty("dept.masterKeys"));
 		cacheManager.addOfDeptCache("masterkeyEnd", p.getProperty("dept.masterKeyEnd"));
 		cacheManager.addOfDeptCache("yfIp", p.getProperty("dept.yfIP"));
+		cacheManager.addOfDeptCache("XTBS", p.getProperty("dept.XTBS"));
+		cacheManager.addOfDeptCache("yfaqm", p.getProperty("dept.yfaqm"));
 		cacheManager.addOfDeptCache("yfPort", p.getProperty("dept.yfPORT"));
 		
 		initCacheManager = new InitCacheManager(sce.getServletContext());

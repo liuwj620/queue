@@ -73,6 +73,27 @@ $(function(){
 							<tr>
 				    			<td width="20%" height="35" bgcolor="#FFFFFF" class="tableheader1">顺 序 号：</td>
 				    			<td width="35%" height="35" bgcolor="#F1F9FD">&nbsp;&nbsp;&nbsp;${number.serialNum}</td>
+				    			<td width="20%" height="35" bgcolor="#FFFFFF" class="tableheader1">证件号码：</td>
+				    			<td width="35%" height="35" bgcolor="#F1F9FD">&nbsp;&nbsp;&nbsp;${number.IDNumber}</td>
+				    		</tr>
+				    		<tr>
+				    			<td width="20%" height="35" bgcolor="#FFFFFF" class="tableheader1">取号时间：</td>
+				    			<td width="35%" height="35" bgcolor="#F1F9FD">&nbsp;&nbsp;&nbsp;${number.enterTime}</td>
+				    			<td width="20%" height="35" bgcolor="#FFFFFF" class="tableheader1">叫号时间：</td>
+				    			<td width="35%" height="35" bgcolor="#F1F9FD">&nbsp;&nbsp;&nbsp;${number.beginTime}</td>
+				    		</tr>
+				    	
+				    		<tr>
+				    			<td width="20%" height="35" bgcolor="#FFFFFF" class="tableheader1" rowspan="4">业务办理照片：</td>
+				    			<td width="35%" height="35" bgcolor="#F1F9FD" rowspan="4">
+				    				<table width="100%" border="0" cellpadding="0" cellspacing="0" class="table_back">
+				    					<tr>
+				    						<td width="100%" height="100%" bgcolor="#F1F9FD">
+				    							<img alt="取号人照片(双击放大，单击复原)" src="getVQhPhoto.action?id=${number.id}" onerror="this.src='./images/zwtp.jpg'" style="width:180px;height:160px;border:2px;" ondblclick="this.style.zoom='2'" onclick="this.style.zoom='1'">
+				    						</td>
+				    					</tr>
+				    				</table>
+				    			</td>
 				    			<td width="20%" height="35" bgcolor="#FFFFFF" class="tableheader1" rowspan="4">身份证照片：</td>
 				    			<td width="35%" height="35" bgcolor="#F1F9FD" rowspan="4">
 				    				<table width="100%" border="0" cellpadding="0" cellspacing="0" class="table_back">
@@ -83,234 +104,6 @@ $(function(){
 				    					</tr>
 				    				</table>
 				    			</td>
-				    		</tr>
-				   			<tr>
-				    			<td width="20%" height="35" bgcolor="#FFFFFF" class="tableheader1">证件号码：</td>
-				    			<td width="35%" height="35" bgcolor="#F1F9FD">&nbsp;&nbsp;&nbsp;${number.IDNumber}</td>
-				    		</tr>
-				    		<tr>
-				    			<td width="20%" height="35" bgcolor="#FFFFFF" class="tableheader1">取号时间：</td>
-				    			<td width="35%" height="35" bgcolor="#F1F9FD">&nbsp;&nbsp;&nbsp;${number.enterTime}</td>
-				    		</tr>
-				    		<tr>
-				    			<td width="20%" height="35" bgcolor="#FFFFFF" class="tableheader1">叫号时间：</td>
-				    			<td width="35%" height="35" bgcolor="#F1F9FD">&nbsp;&nbsp;&nbsp;${number.beginTime}</td>
-				    		</tr>
-				    	
-				    		<tr>
-				    			<td width="20%" height="35" bgcolor="#FFFFFF" class="tableheader1" rowspan="4">取号人照片：</td>
-				    			<td width="35%" height="35" bgcolor="#F1F9FD" rowspan="4">
-				    				<table width="100%" border="0" cellpadding="0" cellspacing="0" class="table_back">
-				    					<tr>
-				    						<td width="100%" height="100%" bgcolor="#F1F9FD">
-				    							<img alt="取号人照片(双击放大，单击复原)" src="getVQhPhoto.action?id=${number.id}" onerror="this.src='./images/zwtp.jpg'" style="width:180px;height:160px;border:2px;" ondblclick="this.style.zoom='2'" onclick="this.style.zoom='1'">
-				    						</td>
-				    					</tr>
-				    				</table>
-				    			</td>
-				    			<td width="20%" height="35" bgcolor="#FFFFFF" class="tableheader1" rowspan="4">办理人照片：</td>
-				    			<td width="35%" height="35" bgcolor="#F1F9FD" rowspan="4">
-									<table width="100%" border="0" cellpadding="0" cellspacing="0" class="table_back">
-				    					<tr>
-				    						<td width="100%" height="100%" bgcolor="#F1F9FD">
-				    							<img alt="办理人照片(双击放大，单击复原)" src="getVPjPhoto.action?id=${number.id}" onerror="this.src='./images/zwtp.jpg'" style="width:180px;height:160px;border:2px;" ondblclick="this.style.zoom='2'" onclick="this.style.zoom='1'">
-				    						</td>
-				    					</tr>
-				    				</table>
-								</td>
-				    		</tr>
-				    		<tr>
-				    		</tr>
-				    		<tr>
-				    		</tr>
-				    		<tr>
-				    		</tr>
-				    		<tr>
-				    			<td width="20%" height="35" bgcolor="#FFFFFF" class="tableheader1" rowspan="4">身份证A面：</td>
-				    			<td width="35%" height="35" bgcolor="#F1F9FD" rowspan="4">
-				    				<table width="100%" border="0" cellpadding="0" cellspacing="0" class="table_back">
-				    					<tr>
-				    						<td width="100%" height="100%" bgcolor="#F1F9FD">
-				    							<img alt="身份证A面照片(双击放大，单击复原)" src="getIDnumber_APhoto.action?id=${number.id}" onerror="this.src='./images/zwtp.jpg'" style="width:180px;height:160px;border:2px;" ondblclick="this.style.zoom='2'" onclick="this.style.zoom='1'">
-				    						</td>
-				    					</tr>
-				    				</table>
-				    			</td>
-				    			<td width="20%" height="35" bgcolor="#FFFFFF" class="tableheader1" rowspan="4">身份证B面：</td>
-				    			<td width="35%" height="35" bgcolor="#F1F9FD" rowspan="4">
-									<table width="100%" border="0" cellpadding="0" cellspacing="0" class="table_back">
-				    					<tr>
-				    						<td width="100%" height="100%" bgcolor="#F1F9FD">
-				    							<img alt="身份证B面照片(双击放大，单击复原)" src="getIDnumber_BPhoto.action?id=${number.id}" onerror="this.src='./images/zwtp.jpg'" style="width:180px;height:160px;border:2px;" ondblclick="this.style.zoom='2'" onclick="this.style.zoom='1'">
-				    						</td>
-				    					</tr>
-				    				</table>
-								</td>
-				    		</tr>
-				    		<tr>
-				    		</tr>
-				    		<tr>
-				    		</tr>
-				    		<tr>
-				    		</tr>
-				    		<tr>
-				    			<td width="20%" height="35" bgcolor="#FFFFFF" class="tableheader1" rowspan="4">登记证书：</td>
-				    			<td width="35%" height="35" bgcolor="#F1F9FD" rowspan="4">
-				    				<table width="100%" border="0" cellpadding="0" cellspacing="0" class="table_back">
-				    					<tr>
-				    						<td width="100%" height="100%" bgcolor="#F1F9FD">
-				    							<img alt="登记证书照片(双击放大，单击复原)" src="getDjzsPhoto.action?id=${number.id}" onerror="this.src='./images/zwtp.jpg'" style="width:180px;height:160px;border:2px;" ondblclick="this.style.zoom='2'" onclick="this.style.zoom='1'">
-				    						</td>
-				    					</tr>
-				    				</table>
-				    			</td>
-				    			<td width="20%" height="35" bgcolor="#FFFFFF" class="tableheader1" rowspan="4">行驶证：</td>
-				    			<td width="35%" height="35" bgcolor="#F1F9FD" rowspan="4">
-									<table width="100%" border="0" cellpadding="0" cellspacing="0" class="table_back">
-				    					<tr>
-				    						<td width="100%" height="100%" bgcolor="#F1F9FD">
-				    							<img alt="行驶证照片(双击放大，单击复原)" src="getXszPhoto.action?id=${number.id}" onerror="this.src='./images/zwtp.jpg'" style="width:180px;height:160px;border:2px;" ondblclick="this.style.zoom='2'" onclick="this.style.zoom='1'">
-				    						</td>
-				    					</tr>
-				    				</table>
-								</td>
-				    		</tr>
-				    		<tr>
-				    		</tr>
-				    		<tr>
-				    		</tr>
-				    		<tr>
-				    		</tr>
-				    		<tr>
-				    			<td width="20%" height="35" bgcolor="#FFFFFF" class="tableheader1" rowspan="4">驾驶证：</td>
-				    			<td width="35%" height="35" bgcolor="#F1F9FD" rowspan="4">
-				    				<table width="100%" border="0" cellpadding="0" cellspacing="0" class="table_back">
-				    					<tr>
-				    						<td width="100%" height="100%" bgcolor="#F1F9FD">
-				    							<img alt="驾驶证照片(双击放大，单击复原)" src="getJszPhoto.action?id=${number.id}" onerror="this.src='./images/zwtp.jpg'" style="width:180px;height:160px;border:2px;" ondblclick="this.style.zoom='2'" onclick="this.style.zoom='1'">
-				    						</td>
-				    					</tr>
-				    				</table>
-				    			</td>
-				    			<td width="20%" height="35" bgcolor="#FFFFFF" class="tableheader1" rowspan="4">企业代码证书：</td>
-				    			<td width="35%" height="35" bgcolor="#F1F9FD" rowspan="4">
-									<table width="100%" border="0" cellpadding="0" cellspacing="0" class="table_back">
-				    					<tr>
-				    						<td width="100%" height="100%" bgcolor="#F1F9FD">
-				    							<img alt="企业代码证书照片(双击放大，单击复原)" src="getQydmzsPhoto.action?id=${number.id}" onerror="this.src='./images/zwtp.jpg'" style="width:180px;height:160px;border:2px;" ondblclick="this.style.zoom='2'" onclick="this.style.zoom='1'">
-				    						</td>
-				    					</tr>
-				    				</table>
-								</td>
-				    		</tr>
-				    		<tr>
-				    		</tr>
-				    		<tr>
-				    		</tr>
-				    		<tr>
-				    		</tr>
-				    		<tr>
-				    			<td width="20%" height="35" bgcolor="#FFFFFF" class="tableheader1" rowspan="4">士兵证：</td>
-				    			<td width="35%" height="35" bgcolor="#F1F9FD" rowspan="4">
-				    				<table width="100%" border="0" cellpadding="0" cellspacing="0" class="table_back">
-				    					<tr>
-				    						<td width="100%" height="100%" bgcolor="#F1F9FD">
-				    							<img alt="士兵证照片(双击放大，单击复原)" src="getSbzPhoto.action?id=${number.id}" onerror="this.src='./images/zwtp.jpg'" style="width:180px;height:160px;border:2px;" ondblclick="this.style.zoom='2'" onclick="this.style.zoom='1'">
-				    						</td>
-				    					</tr>
-				    				</table>
-				    			</td>
-				    			<td width="20%" height="35" bgcolor="#FFFFFF" class="tableheader1" rowspan="4">退伍证书：</td>
-				    			<td width="35%" height="35" bgcolor="#F1F9FD" rowspan="4">
-									<table width="100%" border="0" cellpadding="0" cellspacing="0" class="table_back">
-				    					<tr>
-				    						<td width="100%" height="100%" bgcolor="#F1F9FD">
-				    							<img alt="退伍证书照片(双击放大，单击复原)" src="getITwzsPhoto.action?id=${number.id}" onerror="this.src='./images/zwtp.jpg'" style="width:180px;height:160px;border:2px;" ondblclick="this.style.zoom='2'" onclick="this.style.zoom='1'">
-				    						</td>
-				    					</tr>
-				    				</table>
-								</td>
-				    		</tr>
-				    		<tr>
-				    		</tr>
-				    		<tr>
-				    		</tr>
-				    		<tr>
-				    		</tr>
-				    		<tr>
-				    			<td width="20%" height="35" bgcolor="#FFFFFF" class="tableheader1" rowspan="4">护照：</td>
-				    			<td width="35%" height="35" bgcolor="#F1F9FD" rowspan="4">
-				    				<table width="100%" border="0" cellpadding="0" cellspacing="0" class="table_back">
-				    					<tr>
-				    						<td width="100%" height="100%" bgcolor="#F1F9FD">
-				    							<img alt="护照照片(双击放大，单击复原)" src="getHzPhoto.action?id=${number.id}" onerror="this.src='./images/zwtp.jpg'" style="width:180px;height:160px;border:2px;" ondblclick="this.style.zoom='2'" onclick="this.style.zoom='1'">
-				    						</td>
-				    					</tr>
-				    				</table>
-				    			</td>
-				    			<td width="20%" height="35" bgcolor="#FFFFFF" class="tableheader1" rowspan="4">号牌号码</td>
-				    			<td width="35%" height="35" bgcolor="#F1F9FD" rowspan="4">
-									<table width="100%" border="0" cellpadding="0" cellspacing="0" class="table_back">
-				    					<tr>
-				    						<td width="100%" height="100%" bgcolor="#F1F9FD">
-				    							<!--<img alt="代办人照片A面(双击放大，单击复原)" src="getDbrCard_APhoto.action?id=${number.id}" onerror="this.src='./images/zwtp.jpg'" style="width:180px;height:160px;border:2px;" ondblclick="this.style.zoom='2'" onclick="this.style.zoom='1'">-->
-				    							<img alt="号牌号码(双击放大，单击复原)" src="getHphmPhoto.action?id=${number.id}" onerror="this.src='./images/zwtp.jpg'" style="width:180px;height:160px;border:2px;" ondblclick="this.style.zoom='2'" onclick="this.style.zoom='1'">
-				    						</td>
-				    					</tr>
-				    				</table>
-								</td>
-				    		</tr>
-				    		<tr>
-				    		</tr>
-				    		<tr>
-				    		</tr>
-				    		<tr>
-				    		</tr>
-				    		<tr>
-				    			<td width="20%" height="35" bgcolor="#FFFFFF" class="tableheader1" rowspan="4">代办人照片A面</td>
-				    			<td width="35%" height="35" bgcolor="#F1F9FD" rowspan="4">
-				    				<table width="100%" border="0" cellpadding="0" cellspacing="0" class="table_back">
-				    					<tr>
-				    						<td width="100%" height="100%" bgcolor="#F1F9FD">
-				    							<!--<img alt="代办人照片B面(双击放大，单击复原)" src="getHzPhoto.action?id=${number.id}" onerror="this.src='./images/zwtp.jpg'" style="width:180px;height:160px;border:2px;" ondblclick="this.style.zoom='2'" onclick="this.style.zoom='1'" >-->
-				    							<img alt="代办人照片A面(双击放大，单击复原)" src="getDbrCard_APhoto.action?id=${number.id}" onerror="this.src='./images/zwtp.jpg'" style="width:180px;height:160px;border:2px;" ondblclick="this.style.zoom='2'" onclick="this.style.zoom='1'">
-				    						</td>
-				    					</tr>
-				    				</table>
-				    			</td>
-				    			<td width="20%" height="35" bgcolor="#FFFFFF" class="tableheader1" rowspan="4">代办人照片B面</td>
-				    			<td width="35%" height="35" bgcolor="#F1F9FD" rowspan="4">
-									<table width="100%" border="0" cellpadding="0" cellspacing="0" class="table_back">
-				    					<tr>
-				    						<td width="100%" height="100%" bgcolor="#F1F9FD">
-				    							<!--<img alt="居住证(双击放大，单击复原)" src="getJzzPhoto.action?id=${number.id}" onerror="this.src='./images/zwtp.jpg'" style="width:180px;height:160px;border:2px;" ondblclick="this.style.zoom='2'" onclick="this.style.zoom='1'">-->
-				    							<img alt="代办人照片B面(双击放大，单击复原)" src="getDbrCard_BPhoto.action?id=${number.id}" onerror="this.src='./images/zwtp.jpg'" style="width:180px;height:160px;border:2px;" ondblclick="this.style.zoom='2'" onclick="this.style.zoom='1'" >
-				    						</td>
-				    					</tr>
-				    				</table>
-								</td>
-				    		</tr>
-				    		<tr>
-				    		</tr>
-				    		<tr>
-				    		</tr>
-				    		<tr>
-				    		</tr>
-				    		<tr>
-				    			<td width="20%" height="35" bgcolor="#FFFFFF" class="tableheader1" rowspan="4">居住证</td>
-				    			<td width="35%" height="35" bgcolor="#F1F9FD" rowspan="4">
-				    				<table width="100%" border="0" cellpadding="0" cellspacing="0" class="table_back">
-				    					<tr>
-				    						<td width="100%" height="100%" bgcolor="#F1F9FD">
-				    							<!--<img alt="代办人照片B面(双击放大，单击复原)" src="getHzPhoto.action?id=${number.id}" onerror="this.src='./images/zwtp.jpg'" style="width:180px;height:160px;border:2px;" ondblclick="this.style.zoom='2'" onclick="this.style.zoom='1'" >-->
-				    							<img alt="居住证(双击放大，单击复原)" src="getJzzPhoto.action?id=${number.id}" onerror="this.src='./images/zwtp.jpg'" style="width:180px;height:160px;border:2px;" ondblclick="this.style.zoom='2'" onclick="this.style.zoom='1'">
-				    						</td>
-				    					</tr>
-				    				</table>
-				    			</td>
-				    			<td width="20%" height="35" bgcolor="#FFFFFF" class="tableheader1" rowspan="4"></td>
-				    			<td width="35%" height="35" bgcolor="#F1F9FD" rowspan="4">
-								</td>
 				    		</tr>
 						</table>
 					</form>

@@ -14,6 +14,7 @@ import com.suntendy.queue.business.domain.Business;
 import com.suntendy.queue.business.service.IBusinessService;
 import com.suntendy.queue.dept.domain.Dept;
 import com.suntendy.queue.dept.service.DeptService;
+import com.suntendy.queue.employee.domain.Employee;
 import com.suntendy.queue.employee.service.IEmployeeService;
 import com.suntendy.queue.queue.dao.INumberDao;
 import com.suntendy.queue.queue.domain.Code;
@@ -601,8 +602,22 @@ public class QueueOutAccessImpl implements IQueueOutAccess {
 					xml +="<code>2</code><message>查询窗口ip失败</message></head></root>";
 					e.printStackTrace();
 				}
+				String datas="";
 				if (img.length() > 0 && list.size() > 0) {
-					String datas = list.get(0).getBarIp() + "@" + img + "@" +message + "@" +bj;
+					Employee emp = new Employee();
+					emp.setLoginIp(list.get(0).getBarIp());
+					List<Employee> employee = employeeService.getEmpList(emp);
+					if(null!=employee && !employee.isEmpty()){
+						for(Employee a:employee){
+							if(a.getWSIp()!=null){
+								datas = a.getWSIp() + "@" + img + "@" +message + "@" + bj;
+								break;
+							}else {
+								//datas = list.get(0).getBarIp() + "@" + img + "@" + message + "@" +bj;
+							}
+						}
+					}
+				
 					publisher.publish(new DualScreenEventIMG(datas));
 //					publisher.publish(new ChuangKouPing("127.0.0.1@22@业务受理@A0020"));
 //					publisher.publish(new ChuangKouPing("192.168.2.157@23@业务办理@A0002"));

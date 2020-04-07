@@ -48,6 +48,7 @@ import com.suntendy.queue.util.cache.CacheManager;
 public class LoginAction extends BaseAction {
 	private String LogUser = null;
 	private String session_id;
+	private String userName;
 	private int sessSum = 0;
 	private static final long serialVersionUID = 1L;
 
@@ -89,7 +90,8 @@ public class LoginAction extends BaseAction {
 		String yfport =cacheManager.getOfDeptCache("yfPort");
 		String jym = request.getParameter("JYM");
 		String licenseKey = request.getParameter("licenseKey");
-		String XTBS = "20190627000006697";
+		String XTBS = cacheManager.getOfDeptCache("XTBS");
+		String yfaqm = cacheManager.getOfDeptCache("yfaqm");
 		session_id = request.getParameter("SESSION_ID");
 		List<Employee> userlist = new ArrayList<Employee>();
 		String yhdh = null;
@@ -99,25 +101,31 @@ public class LoginAction extends BaseAction {
 		String yfur=yfip+":"+yfport;
 		int flag=0;
 		if(jym!=null){
-			InetAddress addr = InetAddress.getLocalHost();
-			String[] serIP=addr.toString().split("/");
-			String serverIP=serIP[1];
-			String serverMark=getLocalMac(addr);
-			String deptCodeTop=deptCode.substring(1, 6);
-			String deptCodeTail=deptCode.substring(7, 12);
-			String masterkeys =cacheManager.getOfDeptCache("masterkeys");//授权码有效期始
-			String masterkeyEnd =cacheManager.getOfDeptCache("masterkeyEnd");//授权码有效期止
-			//String bdjym = serverIP+masterkeys+deptCodeTop+serverMark+masterkeyEnd+deptCodeTail;//本机校验码组合
-			String bdjym = "114.116.34.2461411327fa:16:3e:66:06:fd0S00500";
-			String bjym=session_id+EncryptionUtil.encodingMd5(bdjym);
-            //int key=yfJym(bjym, jym);
-			 int key=0;
+			String bdjym;
+			int key;
+			String masterkeys = cacheManager.getOfDeptCache("masterkeys");//授权码有效期始
+			if("1".equals(masterkeys)){
+				key=0;
+			}else {
+				InetAddress addr = InetAddress.getLocalHost();
+				String[] serIP=addr.toString().split("/");
+				String serverIP=serIP[1];
+				String serverMark=getLocalMac(addr);
+				String deptCodeTop=deptCode.substring(1, 6);
+				String deptCodeTail=deptCode.substring(7, 12);
+				String masterkeyEnd =cacheManager.getOfDeptCache("masterkeyEnd");//授权码有效期止
+			    bdjym = serverIP+masterkeys+deptCodeTop+serverMark+masterkeyEnd+deptCodeTail;//本机校验码组合
+			    System.out.println("本机校验码组合"+bdjym);
+	            key=yfJym(bdjym, jym);
+			}
+			
 			if(key==0){
-				String jymString=session_id+XTBS+"ALSKDSwe09JF0912kJDd01ODosdjs8";
+				String jymString=session_id+XTBS+yfaqm;
 				String outputStrJym=EncryptionUtil.encodingMd5(jymString);
 				String outputStr = "SESSION_ID="+session_id+"&XTBS="+XTBS+"&JYM="+outputStrJym;
 				System.out.println("传入参数："+outputStr.toString());
 				net.sf.json.JSONObject yfJson = HttpRequestUtil.httpRequestYf("http://"+yfur+"/compare/inf/SearchLoginInfo.do", "POST", outputStr);
+				//net.sf.json.JSONObject yfJson = HttpRequestUtil.httpRequestYf("http://114.116.34.246:8181/compare/inf/SearchLoginInfo.do", "POST", outputStr);
 				//net.sf.json.JSONObject yfJson = net.sf.json.JSONObject.fromObject("{\"CODE\":1001,\"MESSAGE\":\"查询成功\",\"DATA\":[{\"KEY\":\"1512460887aNSukePAvF\",\"JH\":\"J001\",\"XM\":\"张\",\"SFZH\":\"440882199411160510\",\"ROLE_ID\":\"suntendy\",\"SSBM _ID\":\"I90PO39DM7DJQPDIROW9JKR7DJS890M3\",\"SSBM_NA ME\":\"XX大队\"}]}");
 				if(yfJson ==null){
 					System.out.println("接口调用获取json为null");
@@ -139,11 +147,59 @@ public class LoginAction extends BaseAction {
 					alipayforward(yfur, request, response);
 					return ERROR;
 				}else {
-						username = (String) yfJson.get("JH");//角色ID
-						userlist = this.iLoginService.login(username, "", "",
-								"");
+					String yfCode1 = (String) yfJson.get("ACCOUNT");//账号
+					userlist = this.iLoginService.login(yfCode1, "", "",
+							"");
+					if(userlist!=null&&userlist.size()>0){
 						pass="123";
-						LogUser=username;
+						LogUser=yfCode1;
+						userName=yfCode1;
+					}else{
+						Employee employee = new Employee();
+						String policeCode = (String) yfJson.get("JH");//警号
+						String yfCode = (String) yfJson.get("ACCOUNT");//账号
+						String yfName = (String) yfJson.get("XM");//姓名
+						String yfDeptCode = (String) yfJson.get("SSBM_ID");//部门编号
+						String yfDepartment = (String) yfJson.get("SSBM_NAME");//部门名称
+						String yfsfz = (String) yfJson.get("SFZH");//身份证
+						String roleID = (String) yfJson.get("ROLE_IDS");//权限id
+						
+						
+						Role role = new Role();
+						role.setId(roleID);
+						List<Role> r=iEmployeeService.getRoleList(role);
+						if(r!=null && r.size()>0){
+							employee.setLevelid(r.get(0).getLevelid());
+							employee.setModuleRdac(r.get(0).getCode());
+						}else {
+							employee.setLevelid("78");
+							employee.setModuleRdac("无授权角色");
+						}
+						employee.setRole("1");
+						String UUID = RSAUtilOperate.RSAOperate(yfCode + yfsfz + policeCode, 0);
+						employee.setPoliceCode(policeCode);
+						employee.setCode(yfCode);
+						employee.setName(yfName);
+						employee.setDeptCode(yfDeptCode);
+						employee.setIdnumber(yfsfz);
+						employee.setDepartment(yfDepartment);
+						employee.setSex("男");
+						employee.setPolice("0");
+						employee.setYhyxq("2100-12-25");
+						employee.setKdlip("");
+						employee.setKdlsjd("7-23");
+						employee.setPassword("123");
+						employee.setDeptHall(deptHall);
+						employee.setPassCode("2100-12-25");
+						employee.setUUID(UUID);
+						
+						iEmployeeService.saveEmployee(employee);
+							userlist = this.iLoginService.login(yfCode, "", "",
+									"");
+							pass="123";
+							LogUser=yfCode;
+							userName=yfCode;
+					}
 				}
 			}else {
 				System.out.println("安全码校验失败!返回云帆系统主页!");
@@ -705,8 +761,12 @@ public class LoginAction extends BaseAction {
 			username= LogUser;
 		}else {
 			String yhdh = request.getParameter("J_userName");
-			byte[] userkey = loginKeyUtil.decode(yhdh);
-			username= new String(userkey);
+			if("".equals(yhdh) || yhdh==null){
+				username=userName;
+			}else {
+				byte[] userkey = loginKeyUtil.decode(yhdh);
+				username= new String(userkey);
+			}
 		}
 		
 		if (result == "0") {
@@ -889,7 +949,7 @@ public class LoginAction extends BaseAction {
 	 */
 	  public void alipayforward(String ip,HttpServletRequest req, HttpServletResponse resp) throws Exception {
 		  //resp.sendRedirect("http://"+ip+"/compare/blue/login.html");
-		  resp.sendRedirect("http://114.116.34.246:8181/compare/blue/login.html");  
+		  resp.sendRedirect("http://"+ip+"/compare/loginPki.html");  
 	  }
 	  /**
 	   * 退出登录重定向到云帆系统首页
@@ -900,7 +960,7 @@ public class LoginAction extends BaseAction {
 	   */
 	  public void alipayforward(String ip,String session_id, HttpServletRequest req, HttpServletResponse resp) throws Exception {  
 		    //resp.sendRedirect("http://"+ip+"/compare/blue/sy.html?SESSION_ID="+session_id);
-		  resp.sendRedirect("http://"+ip+"/compare/blue/index.html?SESSION_ID="+session_id); 
+		  resp.sendRedirect("http://"+ip+"/compare/redirIndex.do?SESSION_ID="+session_id); 
 	  }  
 	  /**
 	   * MD5加密验证校验码

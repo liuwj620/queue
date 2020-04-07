@@ -1,5 +1,7 @@
 package com.suntendy.queue.queue.action;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -716,6 +718,7 @@ public class BusinessTypeAction extends BaseAction {
 		String chepainum = "";
 		String IDNumber = "";
 		String jdctypes = "",zt="";
+		String sbkzjsjip="";
 		Map<String, Object> result = new HashMap<String, Object>();
 		String id = this.getRequest().getParameter("id");
 		String[] bkblyw = null;
@@ -729,7 +732,12 @@ public class BusinessTypeAction extends BaseAction {
 			jdctypes  = this.getRequest().getParameter("jdctypes");
 			
 			try {
-				result = TrffUtils.query_QueryCondition(jdctypes, chepainum);
+				sbkzjsjip = InetAddress.getLocalHost().getHostAddress().toString();
+			} catch (UnknownHostException e2) {
+				e2.printStackTrace();
+			}
+			try {
+				result = TrffUtils.query_QueryCondition(jdctypes, chepainum,deptCode,sbkzjsjip);
 				if (!result.isEmpty()) {
 					for (String s:result.keySet()) {
 						Map<String, String> map = (Map<String, String>) result.get(s);
@@ -792,8 +800,12 @@ public class BusinessTypeAction extends BaseAction {
 		}else if ("02".equals(flag)) {
 			IDNumber = this.getRequest().getParameter("IDNumber");
 			try {
-				result = TrffUtils.query_JSR(IDNumber);
-				
+				sbkzjsjip = InetAddress.getLocalHost().getHostAddress().toString();
+			} catch (UnknownHostException e2) {
+				e2.printStackTrace();
+			}
+			try {
+				result = TrffUtils.query_JSR(IDNumber,deptCode,sbkzjsjip);
 				if (!result.isEmpty()) {
 						Map<String, String> map = (Map<String, String>) result.get("JSRMessage");;
 						zt = map.get("zt");

@@ -77,10 +77,10 @@ public class EmployeeDaoImpl extends BaseDao<Employee, String> implements IEmplo
 	}
 
 	public int updateEmp(Employee employee) throws UpdateException {
-		String[] properties = { "id", "status","code","name","password","sex","police","yhyxq","kdlip","kdlsjd","comments","department","editdate","levelid","editdate","photo","department","zxbj","loginIp","RSACheck","moduleRdac","policeCode","passCode" };
+		String[] properties = { "id", "status","code","name","password","sex","police","yhyxq","kdlip","kdlsjd","comments","department","editdate","levelid","editdate","photo","department","zxbj","loginIp","RSACheck","moduleRdac","policeCode","passCode","WSIp"};
 	    Object[] propertyValues = { employee.getId(),employee.getStatus(),employee.getCode(),employee.getName(),employee.getPassword(),
 	    		employee.getSex(),employee.getPolice(),employee.getYhyxq(),employee.getKdlip(),employee.getKdlsjd(),employee.getComments(),employee.getDepartment(),employee.getEditdate(),
-	    		employee.getLevelid(),employee.getEditdate(),employee.getPhoto(),employee.getDepartment(),employee.getZxbj(),employee.getLoginIp(),employee.getRSACheck(),employee.getModuleRdac(),employee.getPoliceCode(),employee.getPassCode()};
+	    		employee.getLevelid(),employee.getEditdate(),employee.getPhoto(),employee.getDepartment(),employee.getZxbj(),employee.getLoginIp(),employee.getRSACheck(),employee.getModuleRdac(),employee.getPoliceCode(),employee.getPassCode(),employee.getWSIp()};
 	    try {
 			return this.updateByMap(employee.getId(), properties, propertyValues, BaseDao.UPDATEBYMAP);
 		} catch (Exception e) {

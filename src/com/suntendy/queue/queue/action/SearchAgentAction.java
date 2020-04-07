@@ -26,6 +26,7 @@ import com.suntendy.queue.hmd.service.IhmdService;
 import com.suntendy.queue.queue.domain.Number;
 import com.suntendy.queue.queue.domain.NumberIdPhoto;
 import com.suntendy.queue.queue.service.INumberService;
+import com.suntendy.queue.util.Base64Util;
 import com.suntendy.queue.util.DateUtils;
 import com.suntendy.queue.util.cache.CacheManager;
 import com.suntendy.queue.util.trff.TrffClient;
@@ -90,56 +91,60 @@ public class SearchAgentAction extends BaseAction {
 
 	@Override
 	public String execute() throws Exception {
+		HttpServletRequest request = getRequest();
+		String flag = request.getParameter("flag");
 		JSONObject object = new JSONObject();
 		CacheManager cacheManager = CacheManager.getInstance();
 		String deptCode = cacheManager.getOfDeptCache("deptCode");
 		String deptHall = cacheManager.getOfDeptCache("deptHall");
 		object.put("isAgnet", false);
-		
-		if ("0".equals(CacheManager.getInstance().getSystemConfig("isCheckAgent"))) {
-			MessageVO messageVO = new MessageVO();
-			messageVO.setPxzd("id");
-			messageVO.setIdCard(IDNumber);
-			messageVO.setDeptCode(CacheManager.getInstance().getOfDeptCache("deptCode"));
-			
-			List<AgentVO> agentList = agentService.searchAgent(messageVO);
-			List<Number> numList = numberService.countByIdnumber(IDNumber, deptCode, deptHall);
-			if (null != agentList && !agentList.isEmpty()) {
-				AgentVO agent = agentList.get(0);
-				String status = "";
-				if(numList.size()>0) {
-					if (Integer.parseInt(numList.get(0).getIdnumbercount()) >= Integer.parseInt(agent.getDlrqhcs())) {
-						status = "此代理人取号次数超过限定次数";
+		if("0".equals(flag)){
+			String isrzdb = cacheManager.getSystemConfig("hfhmrzdb");
+			object.put("isrzdb", isrzdb);
+		}else {
+			if ("0".equals(CacheManager.getInstance().getSystemConfig("isCheckAgent"))) {
+				MessageVO messageVO = new MessageVO();
+				messageVO.setPxzd("id");
+				messageVO.setIdCard(IDNumber);
+				messageVO.setDeptCode(CacheManager.getInstance().getOfDeptCache("deptCode"));
+				
+				List<AgentVO> agentList = agentService.searchAgent(messageVO);
+				List<Number> numList = numberService.countByIdnumber(IDNumber, deptCode, deptHall);
+				if (null != agentList && !agentList.isEmpty()) {
+					AgentVO agent = agentList.get(0);
+					String status = "";
+					if(numList.size()>0) {
+						if (Integer.parseInt(numList.get(0).getIdnumbercount()) >= Integer.parseInt(agent.getDlrqhcs())) {
+							status = "此代理人取号次数超过限定次数";
+						}else {
+							status = "";
+						}
 					}else {
 						status = "";
 					}
-				}else {
-					status = "";
-				}
-				if ("2".equals(agent.getStatus())) {
-					object.put("isAgnet", true);
-					status = "此代理人已暂停，无法取号";
-				} else if ("1".equals(agent.getStatus())) {
-					object.put("isAgnet", true);
-				} else {
-					object.put("isAgnet", false);
-				}
-			
+					if ("2".equals(agent.getStatus())) {
+						object.put("isAgnet", true);
+						status = "此代理人已暂停，无法取号";
+					} else if ("1".equals(agent.getStatus())) {
+						object.put("isAgnet", true);
+					} else {
+						object.put("isAgnet", false);
+					}
 				
-			
-			
-				object.put("agentId", agent.getId());
-				object.put("IDNumber", IDNumber);
-				object.put("agentStatus", status);
-				object.put("nuit", agent.getUnit());
-				object.put("businessTypes", agent.getStype());
-				object.put("dayMax", agent.getMax_times_byday());
-				object.put("businessTypeName", agent.getSname());
-				object.put("fingerprint", agent.getFingerprint());
-				object.put("isOpenJm", CacheManager.getInstance().getSystemConfig("isOpenJm"));
-				object.put("isrzdb", CacheManager.getInstance().getSystemConfig("rzdb"));
+					object.put("agentId", agent.getId());
+					object.put("IDNumber", IDNumber);
+					object.put("agentStatus", status);
+					object.put("nuit", agent.getUnit());
+					object.put("businessTypes", agent.getStype());
+					object.put("dayMax", agent.getMax_times_byday());
+					object.put("businessTypeName", agent.getSname());
+					object.put("fingerprint", agent.getFingerprint());
+					object.put("isOpenJm", CacheManager.getInstance().getSystemConfig("isOpenJm"));
+					
+				}
 			}
 		}
+		
 		
 		this.getResponse("text/html").getWriter().println(object.toString());
 		return null;
@@ -443,18 +448,20 @@ public class SearchAgentAction extends BaseAction {
 		String base64picPhoto = request.getParameter("base64picPhoto");
 		System.out.println("base64picPhoto="+base64picPhoto.length());
 		String cardNumber = request.getParameter("cardNumber");
+		
 		if("0".equals(isOpenPhoto)){
 			deleteIcardPicFile(cardNumber);//删除所有文件
 			ServletContext d=ServletActionContext.getServletContext();
 		    String path=d.getRealPath("/");
-			byte[] bytes = new BASE64Decoder().decodeBuffer(base64picPhoto+2);
-			for(int k=0;k<bytes.length-2;k++){
+			//byte[] bytes = new BASE64Decoder().decodeBuffer(base64picPhoto+2);
+		    byte[] bytes=Base64Util.decode(base64picPhoto);
+		/*	for(int k=0;k<bytes.length-2;k++){
 				if(bytes[k]<0){
 					bytes[k]+=256;
 				}
 			}
 			bytes[bytes.length-2]=(byte) 255;
-			bytes[bytes.length-1]=(byte) 217;
+			bytes[bytes.length-1]=(byte) 217;*/
 			
 			//将照片保存到照片库
 			if (bytes.length>0) {

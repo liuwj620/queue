@@ -50,9 +50,18 @@ public class Employee {
 	private String RSACheck;
 	private String policeCode;
 	private String passCode;
+	private String WSIp;
 	private String UUID;
 	
 	
+	public String getWSIp() {
+		return WSIp;
+	}
+
+	public void setWSIp(String wSIp) {
+		WSIp = wSIp;
+	}
+
 	public String getPassCode() {
 		return passCode;
 	}

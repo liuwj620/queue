@@ -458,17 +458,19 @@ public class TrffUtils {
 	 * @return
 	 * @throws Exception
 	 */
-	public static Map<String, Object> query_QueryCondition(String hpzl,String hpzm) throws Exception {
-		String[][] rows = new String[2][2];
+	public static Map<String, Object> query_QueryCondition(String hpzl,String hpzm,String deptCode,String sbkzjsjip) throws Exception {
+		String[][] rows = new String[3][2];
 		rows[0][0] = "hpzl";
 		rows[0][1] = hpzl;
-		rows[1][0] = "hpzm";
+		rows[1][0] = "hphm";
 		rows[1][1] = hpzm;
+		rows[2][0] = "dabh";
+		rows[2][1] = "";
 		String strXML = XMLUtils.createXML(XMLUtils.TYPE_QUERY, rows);
 		System.out.println("strXML:"+strXML);
 		String strXMLs = "<?xml version='1.0' encoding='GBK'?><root><head><code>1</code><message>数据下载成功！</message><rownum>1</rownum></head><body><veh id='0'><zt>ABC</zt><hpzl>号牌种类</hpzl><hphm>12342342</hphm><clpp1>雪佛兰</clpp1><cllx>S12</cllx><djrq>最近定检日期</djrq><yxqz>检验有效期止</yxqz></veh></body></root>";
 	  //return XMLUtils.readXMLs_01C21(strXMLs);
-		return XMLUtils.readXMLs_01C21(TrffClient.query_Condition("01C21", strXML));
+		return XMLUtils.readXMLs_01C21(TrffClient.query_new_1("01C21", strXML, deptCode, sbkzjsjip,"01"));
 	}
 	
 	/**
@@ -477,14 +479,14 @@ public class TrffUtils {
 	 * @return
 	 * @throws Exception
 	 */
-	public static Map<String, Object> query_JSR(String sfzmhm) throws Exception {
+	public static Map<String, Object> query_JSR(String sfzmhm,String deptCode,String sbkzjsjip) throws Exception {
 		String[][] rows = new String[1][2];
 		rows[0][0] = "sfzmhm";
 		rows[0][1] = sfzmhm;
 		String strXML = XMLUtils.createXML(XMLUtils.TYPE_QUERY, rows);
 		String strXMLs = "<?xml version='1.0' encoding='GBK'?><root><head><code>1</code><message>数据下载成功！</message><rownum>1</rownum></head><body><DrvPerson id='0'><zt>A</zt><sfzmhm>440982199312313433</sfzmhm><xm>小陈</xm><lxzsxxdz>广州市天河区</lxzsxxdz><lxzsyzbm>邮政编码</lxzsyzbm><lxdh>联系电话</lxdh><sjhm>手机号码</sjhm></DrvPerson></body></root>";
 		//	return XMLUtils.readXMLs_02C06(strXMLs);
-		return XMLUtils.readXMLs_02C06(TrffClient.query_Condition("02C06", strXML));
+		return XMLUtils.readXMLs_02C06(TrffClient.query_new_1("02C06", strXML, deptCode, sbkzjsjip,"02"));
 	}
 	
 	/**
@@ -493,22 +495,22 @@ public class TrffUtils {
 	 * @return
 	 * @throws Exception
 	 */
-	public static Map<String, Object> query_WfMessage(String jdsbh,String wfbh,String sfzmhm,String dabh,String jkbj) throws Exception {
+	public static Map<String, Object> query_WfMessage(String jdsbh,String wfbh,String sfzmhm,String dabh,String jkbj,String deptCode,String sbkzjsjip) throws Exception {
 		String[][] rows = new String[5][2];
 		rows[0][0] = "jdsbh";
 		rows[0][1] = jdsbh;
-		rows[0][0] = "wfbh";
+		rows[1][0] = "wfbh";
 		rows[1][1] = wfbh;
-		rows[0][0] = "sfzmhm";
+		rows[2][0] = "sfzmhm";
 		rows[2][1] = sfzmhm;
-		rows[0][0] = "dabh";
-		rows[3][1] = dabh;
-		rows[0][0] = "jkbj";
+		rows[3][0] = "dabh";
+		rows[3][1] = "360300367883";
+		rows[4][0] = "jkbj";
 		rows[4][1] = jkbj;
 		String strXML = XMLUtils.createXML(XMLUtils.TYPE_QUERY, rows);
 		String strXMLs = "<?xml version='1.0' encoding='GBK'?><root><head><code>1</code><message>数据下载成功！</message><rownum>1</rownum></head><body><violation id='0'><jkbj>1</jkbj></violation></body></root>";
 	//	return XMLUtils.readXMLs_04C01(strXMLs);
-		return XMLUtils.readXMLs_04C01(TrffClient.query_Condition("04C01", strXML));
+		return XMLUtils.readXMLs_04C01(TrffClient.query_new_1("04C01", strXML, deptCode, sbkzjsjip,"04"));
 	}
 	
 	/**
@@ -517,16 +519,16 @@ public class TrffUtils {
 	 * @return
 	 * @throws Exception
 	 */
-	public static Map<String, Object> query_QueryJDCWf(String hpzl,String hpzm) throws Exception {
+	public static Map<String, Object> query_QueryJDCWf(String hpzl,String hpzm,String deptCode,String sbkzjsjip) throws Exception {
 		String[][] rows = new String[2][2];
 		rows[0][0] = "hpzl";
 		rows[0][1] = hpzl;
-		rows[1][0] = "hpzm";
+		rows[1][0] = "hphm";
 		rows[1][1] = hpzm;
 		String strXML = XMLUtils.createXML(XMLUtils.TYPE_QUERY, rows);
 		System.out.println("strXML:"+strXML);
 		String strXMLs = "<?xml version='1.0' encoding='GBK'?><root><head><code>1</code><message>数据下载成功！</message><rownum>1</rownum></head><body><violation id='0'><wfcs>0</wfcs></violation></body></root>";
 	//	return XMLUtils.readXMLs_04C10(strXMLs);
-		return XMLUtils.readXMLs_04C10(TrffClient.query_Condition("04C10", strXML));
+		return XMLUtils.readXMLs_04C10(TrffClient.query_new_1("04C10", strXML, deptCode, sbkzjsjip,"04"));
 	}
 }

@@ -1086,6 +1086,7 @@ public class EmployeeAction extends BaseAction {
 		String name = request.getParameter("name");
 		String id = request.getParameter("flag_id");
 		String loginIp = request.getParameter("loginIp");
+		String WSIp = request.getParameter("WSIp");
 		String comments = request.getParameter("comments");
 		String department = request.getParameter("department");
 		String RSA = code + loginIp + deptCode;
@@ -1096,6 +1097,7 @@ public class EmployeeAction extends BaseAction {
 		employee.setLoginIp(loginIp);
 		employee.setName(name);
 		employee.setCode(code);
+		employee.setWSIp(WSIp);
 		employee.setRSACheck(RSAUtilOperate.RSAOperate(RSA, 0));
 		if (!"".equals(id)) {
 			employee.setId(id);

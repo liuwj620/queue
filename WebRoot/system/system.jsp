@@ -497,10 +497,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 							</td>				 
 						</tr>
 						<tr>
-							<td width="22%" height="35" bgcolor="#FFFFFF" class="tableheader1">恢复号码人证对比</td>
+							<td width="22%" height="35" bgcolor="#FFFFFF" class="tableheader1">人证对比</td>
 							<td width="78%" height="35" bgcolor="#F1F9FD">
-								<input type="radio" name="hfhmrzdb" value="0" <ww:if test="${hfhmrzdb eq 0}">checked</ww:if> onclick="hfhmrzdb(0)"/>是
-								<input type="radio" name="hfhmrzdb" value="1" <ww:if test="${hfhmrzdb eq 1}">checked</ww:if> onclick="hfhmrzdb(1)"/>否
+								<input type="radio" name="hfhmrzdb" value="0" <ww:if test="${hfhmrzdb eq 0}">checked</ww:if> onclick="hfhmrzdb(0)"/>开启
+								<input type="radio" name="hfhmrzdb" value="1" <ww:if test="${hfhmrzdb eq 1}">checked</ww:if> onclick="hfhmrzdb(1)"/>关闭
 							</td>
 						</tr>
 						<!-- 梧州新增 -->

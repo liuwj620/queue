@@ -229,6 +229,7 @@ public class WindowServiceImpl implements IWindowService {
 			}
 		}else if ("1".equals(zt)) {//打开选号页面
 			if (jym.split("#").length == 3 && jym.split("#")[0].length() == 12 && !"".equals(url)) {
+				//选号疑问
 				datas = jym.split("#")[1]+"@"+url+"@1";
 				publisher.publish(new DualScreenEventYZ(datas));
 				code = jym.split("#")[0].substring(0, 6)+"#"+jym.split("#")[1]+"#"+jym.split("#")[2]+"#"+

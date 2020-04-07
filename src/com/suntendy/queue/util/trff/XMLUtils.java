@@ -354,7 +354,7 @@ public class XMLUtils {
 				Element root = document.getRootElement();			
 				if ("1".equals(((Node) root.selectNodes("//code").get(0)).getText())) {
 					if (!"0".equals(((Node) root.selectNodes("//rownum").get(0)).getText())) {
-						jkbj = ((Node)root.selectNodes("//violation/jkbj").get(0)).getText();
+						jkbj = ((Node)root.selectNodes("//vio/jkbj").get(0)).getText();
 								Map<String, String> map = new HashMap<String, String>();
 								map.put("jkbj", jkbj);
 								result.put("WfMessage", map);

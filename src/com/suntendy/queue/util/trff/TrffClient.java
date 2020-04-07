@@ -107,6 +107,37 @@ public class TrffClient {
 		System.out.println("调取"+interfaceID+"接口结果="+result);
 		return result;	
    }
+	
+	public static String queryJKPD() throws Exception {
+		String result = "";
+		CacheManager config = CacheManager.getInstance();
+		String[] ip = config.getSystemConfig("ip").split(",");
+		String[] SERVER_URL = new String[ip.length];
+		String[] TARGET_NAMESPACE = new String[ip.length];
+		int i = 0;
+		int state = -1;
+		while (i < ip.length) {
+//			SERVER_URL[i] = "http://" + ip[i] + "/trffweb/services/TmriOutAccess?wsdl";
+//			TARGET_NAMESPACE[i] = "http://" + ip[i] + "/trffweb/services/TmriOutAccess";
+			
+			SERVER_URL[i] = "http://" + ip[i] + "/trffweb/services/TmriOutNewAccess?wsdl";
+			TARGET_NAMESPACE[i] = "http://" + ip[i] + "/trffweb/services/TmriOutNewAccess";
+			// 判断接口连接URL是否可用
+			URLAvailability u = new URLAvailability();
+			state = u.isConnect(SERVER_URL[i]);
+			if (state == 200) {
+		    	result = "1";
+				break;
+		    } else {
+		    	System.out.println("第"+(i+1)+"个IP的接口不通！");
+				i++;
+				continue;
+			}
+		}
+		return result;	
+   }
+	
+	
 	/**
 	 * 写入类新接口
 	 * @param interfaceID 接口标识
@@ -711,6 +742,86 @@ public class TrffClient {
 					call.setReturnType(XMLType.XSD_STRING);
 					result = URLDecoder.decode((String) call.invoke(new Object[] { 
 							SYSTEM_ID, INTERFACE_SERIAL_NUM, interfaceID, strXML }), "UTF-8");
+				  } catch (ServiceException e) {
+		               e.printStackTrace();
+		               i++;
+					   continue;
+	              } catch (RemoteException e) {
+	                   e.printStackTrace();
+	                   i++;
+					   continue;
+	              } catch (MalformedURLException e) {
+	                   e.printStackTrace();
+	                   i++;
+					   continue;
+	              }catch (Exception e) {
+		               e.printStackTrace();
+					   i++;
+					   continue;
+				}
+				break;
+		    } else {
+		    	System.out.println("第"+(i+1)+"个IP的接口不通！");
+				i++;
+				continue;
+			}
+		}
+		System.out.println("调取"+interfaceID+"接口结果="+result);
+		return result;	
+   }
+	/**
+	 * 查询类新接口
+	 * @param interfaceID 接口标识
+	 * @param strXML XML格式封装的数据
+	 * @return XML格式封装的结果
+	 * @throws Exception 
+	 */
+	public static String query_new_1(String interfaceID, String strXML,String deptCode,String sbkzjsjip,String jkxlh) throws Exception {
+		String result = "";
+//		String METHOD_NAME = "queryObjectOutNew";
+		String METHOD_NAME = "queryObjectOut";
+		String SYSTEM_ID; // 系统类别
+		String INTERFACE_SERIAL_NUM; // 接口序列号
+		CacheManager config = CacheManager.getInstance();
+		String[] ip = config.getSystemConfig("ip").split(",");
+		String[] SERVER_URL = new String[ip.length];
+		String[] TARGET_NAMESPACE = new String[ip.length];
+		int i = 0;
+		int state = -1;
+		while (i < ip.length) {
+//			SERVER_URL[i] = "http://" + ip[i] + "/trffweb/services/TmriOutAccess?wsdl";
+//			TARGET_NAMESPACE[i] = "http://" + ip[i] + "/trffweb/services/TmriOutAccess";
+			
+			SERVER_URL[i] = "http://" + ip[i] + "/trffweb/services/TmriOutNewAccess?wsdl";
+			TARGET_NAMESPACE[i] = "http://" + ip[i] + "/trffweb/services/TmriOutNewAccess";
+			
+			
+			SYSTEM_ID = config.getSystemConfig("systemId"); // 系统类别
+			INTERFACE_SERIAL_NUM = config.getSystemConfig("interfaceId"); // 接口序列号
+			// 判断接口连接URL是否可用
+			URLAvailability u = new URLAvailability();
+			state = u.isConnect(SERVER_URL[i]);
+			if (state == 200) {
+		    	try {
+					Service service = new Service();
+					Call call = (Call) service.createCall();
+					call.setTargetEndpointAddress(new URL(SERVER_URL[i]));
+					call.setUseSOAPAction(true);
+					call.setSOAPActionURI(TARGET_NAMESPACE + METHOD_NAME);
+					call.setOperationName(new QName(TARGET_NAMESPACE[i], METHOD_NAME));
+					call.addParameter("xtlb", XMLType.XSD_STRING, ParameterMode.IN);
+					call.addParameter("jkxlh", XMLType.XSD_STRING, ParameterMode.IN);
+					call.addParameter("jkid", XMLType.XSD_STRING, ParameterMode.IN);
+//					call.addParameter("cjsqbh", XMLType.XSD_STRING, ParameterMode.IN);
+					call.addParameter("dwjgdm", XMLType.XSD_STRING, ParameterMode.IN);
+					call.addParameter("dwmc", XMLType.XSD_STRING, ParameterMode.IN);
+					call.addParameter("yhbz", XMLType.XSD_STRING, ParameterMode.IN);
+					call.addParameter("yhxm", XMLType.XSD_STRING, ParameterMode.IN);
+					call.addParameter("zdbs", XMLType.XSD_STRING, ParameterMode.IN);
+					call.addParameter("QueryXmlDoc", XMLType.XSD_STRING, ParameterMode.IN);
+					call.setReturnType(XMLType.XSD_STRING);
+//					result = URLDecoder.decode((String) call.invoke(new Object[] { SYSTEM_ID, INTERFACE_SERIAL_NUM, interfaceID, strXML }), "UTF-8");
+					result = URLDecoder.decode((String) call.invoke(new Object[] { jkxlh, INTERFACE_SERIAL_NUM, interfaceID,deptCode,"","","",sbkzjsjip, strXML }), "UTF-8");
 				  } catch (ServiceException e) {
 		               e.printStackTrace();
 		               i++;

@@ -27,6 +27,9 @@
 <link rel="stylesheet" type="text/css" href="css/styles.css">
 <script type="text/javascript">
 		serip = "<%=serverIP%>";
+		  $(document).ready(function() {    
+		       $('html, body').animate({scrollTop:0}, 'slow');     
+		    });  
 		</script>
 </head>
 
@@ -48,6 +51,10 @@
 			<tr>
 				<td colspan="2"><input type="button" class="btn_tj" value=""
 					onclick="login()"></td>
+			</tr>
+			<tr id="rzhy" style="display: none;">
+				<td colspan="2" style="text-align: right;"><input type="button"  value="人证对比"
+					onclick="rzdb()"></td>
 			</tr>
 		</table>
 	</div>
@@ -103,6 +110,18 @@
 <!--需要添加的部分结束-->
 <script type="text/javascript">
 	var picPhoto="";
+	
+	function rzdb(){
+		var url = 'http://<%=serverIP%>/queue/number/Rzdbts.action';
+		 var operatorInfo = {operNum:$("#jh").val(), loginIP:'<%=clientIp%>'};
+		 $.post(url, operatorInfo, function(data) {
+				if (eval(data)) {
+	           	} else {
+	               window.alert("人证对比功能【未开启】！需要使用请联系管理员！");
+	           	}
+        });
+	}
+	
 	function login() {
 		var jh =$.trim($("#jh").val());
 		var name =$.trim($("#name").val());
@@ -117,6 +136,8 @@
 			$("#name").val("");
 			return false;
 		}
+		
+		$("#rzhy").css("display","");
 		//$("#callCon").css("display","none");
 		$("#newnotice").css("display","");
 		displayWin();
@@ -132,7 +153,14 @@
         });
 	}
 	
-
+	function sveinRet(data){
+		var ret=data.retCode;
+		if(ret==90){
+			alert("人证对比【成功】");
+		}else{
+			alert("人证对比【不一致】");
+		}
+	}
 	
 	function send() {
      <%--    var soapMessage ='<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">' +

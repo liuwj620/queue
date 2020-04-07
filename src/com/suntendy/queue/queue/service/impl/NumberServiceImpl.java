@@ -1,5 +1,7 @@
 package com.suntendy.queue.queue.service.impl;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
@@ -19,6 +21,8 @@ import com.suntendy.queue.business.dao.IBusinessDao;
 import com.suntendy.queue.business.domain.Business;
 import com.suntendy.queue.dept.dao.DeptDao;
 import com.suntendy.queue.dept.domain.Dept;
+import com.suntendy.queue.employee.domain.Employee;
+import com.suntendy.queue.employee.service.IEmployeeService;
 import com.suntendy.queue.led.domain.LED;
 import com.suntendy.queue.led.service.LedService;
 import com.suntendy.queue.lzxx.action.LzckAction;
@@ -37,6 +41,8 @@ import com.suntendy.queue.queue.service.ICodeService;
 import com.suntendy.queue.queue.service.INumberService;
 import com.suntendy.queue.queue.util.cache.NumberManager;
 import com.suntendy.queue.queue.util.cache.VoiceManager;
+import com.suntendy.queue.util.Base64Util;
+import com.suntendy.queue.util.Bitmap;
 import com.suntendy.queue.util.DateUtils;
 import com.suntendy.queue.util.PjTimerTask;
 import com.suntendy.queue.util.screenGDContetTimerTask;
@@ -85,7 +91,17 @@ public class NumberServiceImpl implements INumberService {
 	private IZhpcallnumDao	zhpcallnumDao;
 	private DeptDao deptDao;
 	private String Pjflag;
+	private IEmployeeService iEmployeeService;
 	
+	
+	public void setiEmployeeService(IEmployeeService iEmployeeService) {
+		this.iEmployeeService = iEmployeeService;
+	}
+	
+	public IEmployeeService getiEmployeeService() {
+		return iEmployeeService;
+	}
+
 	public void setDeptDao(DeptDao deptDao) {
 		this.deptDao = deptDao;
 	}
@@ -806,17 +822,29 @@ public class NumberServiceImpl implements INumberService {
 		flag= businessList.get(0).getFlag();
 		System.out.println("业务类型:"+flag+"(01:机动车业务 02:驾驶人业务)");
 		}
+		Employee employee=iEmployeeService.getEmployeeByCode(operNum);
+		String WSIp=employee.getWSIp();
 		if(flag!=null&&!flag.equals("")){
 		//推送驾驶人或机动车信息:打开通知提档可存入相关信息
 			if(jdctype!=null&&!jdctype.equals("")&&flag.equals("01")){
-				showMessage(loginIP,jdctype,jdcnum);
+				showMessage(WSIp,jdctype,jdcnum);
 			}else if(flag.equals("02")){
-				showJSRMessage(loginIP,sfzmhm,binss);
+				showJSRMessage(WSIp,sfzmhm,binss);
 			}
 		}
+		
 		//将所叫号推送到双屏
+		NumberIdPhoto numphoto = new NumberIdPhoto();
+		numphoto.setNumberId(number.getIDNumber());
+		String sphoto = null;
+		List<NumberIdPhoto> numphotolist =this.queryPhotoBy(numphoto);
+		if (numphotolist!=null&&numphotolist.size()>0) {
+			byte[] sfzPhoto=numphotolist.get(0).getSfzphoto();
+			sphoto=bitmaptoString(sfzPhoto);
+			System.out.println("sphoto:"+sphoto);
+		}
 		String isOpenIndexCamera = cacheManager.getSystemConfig("isOpenIndexCamera");
-		String datas = loginIP + "@" + number.getSerialNum()+":"+number.getId()+":"+isOpenIndexCamera;
+		String datas = WSIp + "@" + number.getSerialNum()+":"+number.getId()+":"+isOpenIndexCamera+":"+sphoto;
 		System.out.println("双屏号："+number.getSerialNum());
 		publisher.publish(new DualScreenEvent(datas));
 		
@@ -855,12 +883,19 @@ public class NumberServiceImpl implements INumberService {
 	private void showMessage(String loginIP,String hpzl,String hpzm) {
 		CacheManager cacheManager = CacheManager.getInstance();
 		String isUseInterface = cacheManager.getSystemConfig("isUseInterface");//是否启用接口
+		String deptCode = cacheManager.getOfDeptCache("deptCode");
 		String jklx = cacheManager.getSystemConfig("jklx");
 		String flag="1",clpp1="",cllx="",djrq="",yxqz="",zt="";
+		String sbkzjsjip = "";//设备控制计算机ip
 		Map<String, Object> result = new HashMap<String, Object>();
-		if ("0".equals(isUseInterface) && "0".equals(jklx)) {
+		if ("0".equals(isUseInterface) && "1".equals(jklx)) {
 			try {
-				result = TrffUtils.query_QueryCondition(hpzl, hpzm);
+				sbkzjsjip = InetAddress.getLocalHost().getHostAddress().toString();
+			} catch (UnknownHostException e2) {
+				e2.printStackTrace();
+			}
+			try {
+				result = TrffUtils.query_QueryCondition(hpzl, hpzm,deptCode,sbkzjsjip);
 				if (!result.isEmpty()) {
 					for (String s:result.keySet()) {
 						Map<String, String> map = (Map<String, String>) result.get(s);
@@ -888,13 +923,19 @@ public class NumberServiceImpl implements INumberService {
 	private void showJSRMessage(String loginIP,String sfzmhm,String binss) {
 		CacheManager cacheManager = CacheManager.getInstance();
 		String isUseInterface = cacheManager.getSystemConfig("isUseInterface");//是否启用接口
+		String deptCode = cacheManager.getOfDeptCache("deptCode");
 		String jklx = cacheManager.getSystemConfig("jklx");
 		String flag="2",lxzsyzbm="",xm="",lxzsxxdz="",cllx="",lxdh="",sjhm="";
+		String sbkzjsjip = "";//设备控制计算机ip
 		Map<String, Object> result = new HashMap<String, Object>();
-		if ("0".equals(isUseInterface) && "0".equals(jklx) && sfzmhm.length()>=15) {
+		if ("0".equals(isUseInterface) && "1".equals(jklx) && sfzmhm.length()>=15) {
 			try {
-				result = TrffUtils.query_JSR(sfzmhm);
-				
+				sbkzjsjip = InetAddress.getLocalHost().getHostAddress().toString();
+			} catch (UnknownHostException e2) {
+				e2.printStackTrace();
+			}
+			try {
+				result = TrffUtils.query_JSR(sfzmhm,deptCode,sbkzjsjip);
 				if (!result.isEmpty()) {
 						Map<String, String> map = (Map<String, String>) result.get("JSRMessage");;
 						sfzmhm = map.get("sfzmhm");
@@ -1237,7 +1278,7 @@ public class NumberServiceImpl implements INumberService {
 								//行数(高度/点阵数)
 								int hangshu = Integer.parseInt(led_TVlist.get(i).getHeight())/Integer.parseInt(led_TVlist.get(i).getLattice());
 								//列数(屏宽/字符长度)
-//												int lieshu = (int) Math.floor(Integer.parseInt(led_TVlist.get(i).getWidth())/contentLength);
+//								int lieshu = (int) Math.floor(Integer.parseInt(led_TVlist.get(i).getWidth())/contentLength);
 								int lieshu = Integer.parseInt(led_TVlist.get(i).getWidth())*2/Integer.parseInt(led_TVlist.get(i).getLattice())/(content).replaceAll("[^\\x00-\\xff]", "**").length();
 								System.out.println("当前字符长度="+len);
 								System.out.println("列数="+lieshu);
@@ -1401,7 +1442,18 @@ public class NumberServiceImpl implements INumberService {
 		}
 		//将所叫号推送到双屏
 		String isOpenIndexCamera = cacheManager.getSystemConfig("isOpenIndexCamera");
-		String datas = loginIP + "@" + number.getSerialNum()+":"+number.getId()+":"+isOpenIndexCamera;
+		Employee employee=iEmployeeService.getEmployeeByCode(operNum);
+		//将所叫号推送到双屏
+		NumberIdPhoto numphoto = new NumberIdPhoto();
+		numphoto.setNumberId(number.getIDNumber());
+		String sphoto = null;
+		List<NumberIdPhoto> numphotolist =this.queryPhotoBy(numphoto);
+		if (numphotolist!=null&&numphotolist.size()>0) {
+			byte[] sfzPhoto=numphotolist.get(0).getSfzphoto();
+			sphoto=bitmaptoString(sfzPhoto);
+			System.out.println("sphoto:"+sphoto.length());
+		}
+		String datas = employee.getWSIp() + "@" + number.getSerialNum()+":"+number.getId()+":"+isOpenIndexCamera+":"+sphoto;
 		System.out.println("双屏号："+number.getSerialNum());
 		publisher.publish(new DualScreenEvent(datas));
 		
@@ -1502,7 +1554,8 @@ public class NumberServiceImpl implements INumberService {
 		VoiceManager.getInstance().add(numAndAddress);
 		//将所叫号推送到双屏
 		String isOpenIndexCamera = cacheManager.getSystemConfig("isOpenIndexCamera");
-		String datas = loginIP + "@" + searchNumber.getSerialNum()+":"+searchNumber.getId()+":"+isOpenIndexCamera;
+		Employee employee=iEmployeeService.getEmployeeByCode(operNum);
+		String datas = employee.getWSIp() + "@" + searchNumber.getSerialNum()+":"+searchNumber.getId()+":"+isOpenIndexCamera;
 		publisher.publish(new DualScreenEvent(datas));
 		
 		//添加日志
@@ -1676,7 +1729,8 @@ public class NumberServiceImpl implements INumberService {
 			screen.getLed().setWidth(screen.getLedWindowWidth());
 		}
 //		LEDUtils.sendText(screen, null, null, false);
-		String datas = loginIP;
+		Employee employee=iEmployeeService.getEmployeeByCode(operNum);
+		String datas = employee.getWSIp() +"@"+loginIP;
 		publisher.publish(new PassEvent(datas));
 		
 		//定时警告 0 启用 1 不启用
@@ -1769,7 +1823,7 @@ public class NumberServiceImpl implements INumberService {
 		}
 		
 		if ("1".equals(jklx)) {
-			return "3@1@过好成功";
+			return "3@1@过号成功";
 		}else {
 			return "过号成功@1";
 		}
@@ -1937,11 +1991,6 @@ public class NumberServiceImpl implements INumberService {
 			LZZT = searchNumber.getId()+"@1";
 			LZZTMAP.put(searchNumber.getId(), "1");
 		}
-		
-		
-		
-		
-		
 		searchNumber.setStatus("4");
 		
 		String isUseOldDevice = cacheManager.getSystemConfig("isUseOldDevice");
@@ -1966,7 +2015,8 @@ public class NumberServiceImpl implements INumberService {
 			for (Code code : codeList) {
 				obj.put(code.getDm(), code.getMc());
 			}
-			String datas = loginIP + "@" + obj.toString() + "@" + isCamera + "@" + isSignature + "@" + isOpenForceEnvalue+"@"+pt;
+			Employee employee=iEmployeeService.getEmployeeByCode(operNum);
+			String datas = employee.getWSIp()  + "@" + obj.toString() + "@" + isCamera + "@" + isSignature + "@" + isOpenForceEnvalue+"@"+pt;
 			publisher.publish(new EvaluateEvent(datas));
 			if("0".equals(isOpenForceEnvalue)){//判断是否启用强制评价
 				//判断是否超时12秒，是：自动提交
@@ -2059,6 +2109,9 @@ public class NumberServiceImpl implements INumberService {
 	
 	public void evaluation(Number number, String loginIP) throws Exception {
 		String flag = number.getCarType();
+		if(flag==null){
+			flag = number.getStatus();
+		}
 		Pjflag=flag;
 		CacheManager cacheManager = CacheManager.getInstance();
 		String isUseInterface = cacheManager.getSystemConfig("isUseInterface");
@@ -2680,8 +2733,8 @@ public class NumberServiceImpl implements INumberService {
 			}
 		}
 		
-		
-		String datas = loginIP;
+		Employee employee=iEmployeeService.getEmployeeByCode(operNum);
+		String datas = employee.getWSIp() +"@"+loginIP;
 		publisher.publish(new PassEvent(datas));
 		//添加挂起记录
 		Number num = new Number();
@@ -2840,9 +2893,9 @@ public class NumberServiceImpl implements INumberService {
 		System.out.println("恢复号码="+number.getSerialNum());
 		if (number.getRzdbz() == null) {number.setRzdbz("0");}
 		System.out.println("人证对比值="+number.getRzdbz());
-		if ("0".equals(cacheManager.getSystemConfig("hfhmrzdb")) && Integer.parseInt(number.getRzdbz()) < Integer.parseInt(cacheManager.getSystemConfig("rzdbckz"))) {
+		/*if ("0".equals(cacheManager.getSystemConfig("hfhmrzdb")) && Integer.parseInt(number.getRzdbz()) < Integer.parseInt(cacheManager.getSystemConfig("rzdbckz"))) {
 			return "人证对比值过低,不能恢复号码";
-		}
+		}*/
 		Screen screen = cacheManager.getWindow(loginIP);
 		if ("0".equals(cacheManager.getSystemConfig("isUseInterface")) && "0".equals(screen.getOpenInterFace()) && "0".equals(cacheManager.getSystemConfig("jklx"))) {
 			//上传挂起恢复信息
@@ -2932,8 +2985,18 @@ public class NumberServiceImpl implements INumberService {
 		}
 		screen.setContent2(tempContent);
 		//将所叫号推送到双屏
+		NumberIdPhoto numphoto = new NumberIdPhoto();
+		numphoto.setNumberId(number.getIDNumber());
+		String sphoto = null;
+		List<NumberIdPhoto> numphotolist =this.queryPhotoBy(numphoto);
+		if (numphotolist!=null&&numphotolist.size()>0) {
+			byte[] sfzPhoto=numphotolist.get(0).getSfzphoto();
+			sphoto=bitmaptoString(sfzPhoto);
+			System.out.println("sphoto:"+sphoto);
+		}
 		String isOpenIndexCamera=cacheManager.getSystemConfig("isOpenIndexCamera");
-		String datas = loginIP + "@" + number.getSerialNum()+":"+number.getId()+":"+isOpenIndexCamera;
+		Employee employee=iEmployeeService.getEmployeeByCode(operNum);
+		String datas = employee.getWSIp() + "@" + number.getSerialNum()+":"+number.getId()+":"+isOpenIndexCamera+":"+sphoto;
 		publisher.publish(new DualScreenEvent(datas));
 		
 		//添加日志
@@ -2974,9 +3037,9 @@ public class NumberServiceImpl implements INumberService {
 		System.out.println("恢复号码="+number.getSerialNum());
 		if (number.getRzdbz() == null) {number.setRzdbz("0");}
 		System.out.println("人证对比值="+number.getRzdbz());
-		if ("0".equals(cacheManager.getSystemConfig("hfhmrzdb")) && Integer.parseInt(number.getRzdbz()) < Integer.parseInt(cacheManager.getSystemConfig("rzdbckz"))) {
+		/*if ("0".equals(cacheManager.getSystemConfig("hfhmrzdb")) && Integer.parseInt(number.getRzdbz()) < Integer.parseInt(cacheManager.getSystemConfig("rzdbckz"))) {
 			return "人证对比值过低,不能恢复号码";
-		}
+		}*/
 		Screen screen = cacheManager.getWindow(loginIP);
 		
 		Number updateNumber = new Number();
@@ -3052,7 +3115,8 @@ public class NumberServiceImpl implements INumberService {
 		screen.setContent2(tempContent);
 		//将所叫号推送到双屏
 		String isOpenIndexCamera=cacheManager.getSystemConfig("isOpenIndexCamera");
-		String datas = loginIP + "@" + number.getSerialNum()+":"+number.getId()+":"+isOpenIndexCamera;
+		Employee employee=iEmployeeService.getEmployeeByCode(operNum);
+		String datas = employee.getWSIp() + "@" + number.getSerialNum()+":"+number.getId()+":"+isOpenIndexCamera;
 		publisher.publish(new DualScreenEvent(datas));
 		
 		//添加日志
@@ -3181,8 +3245,8 @@ public class NumberServiceImpl implements INumberService {
 			}
 		}
 		
-		
-		String datas = loginIP;
+		Employee employee=iEmployeeService.getEmployeeByCode(operNum);
+		String datas = employee.getWSIp() +"@"+loginIP;
 		publisher.publish(new PassEvent(datas));
 		
 		
@@ -3394,7 +3458,8 @@ public class NumberServiceImpl implements INumberService {
 						publisher.publish(new ChuangKouPing(ckip+"@"+ckid+"@"+ckmc+"@"+sxh));
 					}
 				}
-				publisher.publish(new PauseOrRecoverEvent(isPause.split("@")[0] + "@" + loginIP));
+				Employee employee=iEmployeeService.getEmployeeByCode(operNum);
+				publisher.publish(new PauseOrRecoverEvent(isPause.split("@")[0] + "@" + employee.getWSIp()));
 			} else {
 				info.setMsg("此IP未与窗口绑定，不能暂停");
 				info.setResultZT("10@2@此IP未与窗口绑定，不能暂停");
@@ -3866,7 +3931,14 @@ public class NumberServiceImpl implements INumberService {
 	    }
 	    return false;
 	}
-
+	
+	//byte转String
+	public String bitmaptoString(byte[] bytes) throws EnumConstantNotPresentException{
+        StringBuffer string = new StringBuffer();
+        string.append(Base64Util.encode(bytes));
+        return string.toString();
+    }
+	
 	@Override
 	public List<Number> getvaluerecordByClientno(Number number)
 			throws Exception {
@@ -3881,5 +3953,11 @@ public class NumberServiceImpl implements INumberService {
 	@Override
 	public void updateWanJie(Number number) throws Exception {
 		this.numberDao.updateWanJie(number);
+	}
+
+	@Override
+	public List<Number> getrzdbz(String tjms, String ckip, String xm, String ksrq,
+			String jsrq, Number Number) throws Exception {
+		return numberDao.getrzdbz(tjms, ckip, xm, ksrq, jsrq, Number);
 	}
 }

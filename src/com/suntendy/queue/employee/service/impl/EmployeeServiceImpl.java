@@ -71,6 +71,7 @@ public class EmployeeServiceImpl implements IEmployeeService{
 			employee.setId(epy.getId());
 		}
 		employee.setPhoto(epy.getPhoto());
+		employee.setWSIp(epy.getWSIp());
 		employee.setComments(StringUtils.trimToEmpty(epy.getComments()));
 		CacheManager.getInstance().addOfLoginCache(employee.getCode(), employee.getLoginIp());
 		publisher.publish(new UserLoginEvent(employee));

@@ -8,7 +8,7 @@
 <body>
 <script type="text/javascript">
 alert('连接超时,请重新登录!');
-window.parent.parent.location.href = "http://114.116.34.246:8181/compare/blue/login.html?SESSION_ID=ADAR1RNVL2-HSI6ZHGW424258F35BRN3-LO1R7EXJ-44";
+window.parent.parent.location.href = "http://62.170.97.126:8123/compare/redirIndex.do?SESSION_ID=p6pzg9n64pe81xww06rfnl7s9";
 </script> 
 </body>
 </html>

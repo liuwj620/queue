@@ -55,5 +55,7 @@
     <bean id="loginWSAction" class="com.suntendy.queue.webservice.LoginWSAction">
         <property name="employeeService" ref="employeeService" />
         <property name="setWindowService"><ref bean="setWindowService" /></property>
+        <property name="numberService" ref="numberService" />
+        <property name="publisher" ref="publisher" />
     </bean>
 </beans>

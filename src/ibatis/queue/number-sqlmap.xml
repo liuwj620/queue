@@ -127,9 +127,12 @@
 	
 	<!-- 更新rzdbz -->
 	<update id="updateRzdbz" parameterClass="java.util.HashMap">
-	    UPDATE pd_valuerecord t SET t.id=#id#
-	    <isNotEmpty property="rzdbz" prepend=",">t.rzdbz=#rzdbz#</isNotEmpty>
-	    WHERE t.id=#id#
+	    UPDATE pd_valuerecord t SET t.id=t.id
+	     <isNotEmpty property="quhaoPhoto" prepend=","> t.quhaoPhoto=#quhaoPhoto#</isNotEmpty>
+	    <isNotEmpty property="rzdbz" prepend=","> t.rzdbz=#rzdbz#</isNotEmpty>
+	    WHERE 1=1
+	    <isNotEmpty property="id" prepend="and"> t.id=#id#</isNotEmpty>
+	    <isNotEmpty property="serialNum" prepend="and"> t.clientno=#serialNum#</isNotEmpty>
 	</update>
 	
 	<update id="updateGQserialno" parameterClass="java.util.HashMap">
@@ -852,4 +855,22 @@
 	<update id="updateWanJie" parameterClass="number">
 		update pd_valuerecord t set t.ischuli='1' where t.clientno=#clientno# and substr(t.entertime,1,10)=to_char(sysdate,'yyyy-mm-dd')
 	</update>
+	
+	<!-- 根据号码、窗口号查询日志 顺序号信息查询-->
+	<select id="getrzdbz" parameterClass="java.util.HashMap" resultClass="number">
+		select t.BARID,substr(t.CLIENTNO,-5,5) CLIENTNO,t.IDNUMBER,t.RZDBZ,t.NAMEA,t.id,t.quhaophoto,n.sfzphoto sfzphoto,t.entertime
+			from pd_valuerecord t,pd_numberid_photo n 
+	    where 1=1  and t.idnumber=n.numberid(+)
+	    <isNotEmpty property="ckip" prepend="AND"> t.BARID=#ckip# </isNotEmpty>
+	    <isNotEmpty property="sfzxm" prepend="AND"> t.carnumber =#sfzxm# </isNotEmpty>
+	    <isNotEmpty property="sfzid" prepend="AND"> t.IDNUMBER =#sfzid# </isNotEmpty>
+	    <isNotEmpty property="SerialNum" prepend="AND"> t.CLIENTNO =#SerialNum# </isNotEmpty>
+	    <isNotEmpty property="jsrq" prepend="AND">
+			<![CDATA[to_date(substr(t.entertime,1,19),'yyyy-mm-dd hh24:mi:ss')<=$jsrq$]]>
+		</isNotEmpty>
+		<isNotEmpty property="ksrq" prepend="AND">
+			<![CDATA[to_date(substr(t.entertime,1,19),'yyyy-mm-dd hh24:mi:ss')>=$ksrq$]]>
+		</isNotEmpty>
+	    order by t.entertime
+	</select>
 </sqlMap>

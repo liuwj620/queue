@@ -3,6 +3,12 @@
 }
 jQuery.ajaxSetup ({cache:false}) ;
 GenerateNumber = (function() {
+	var Url = 'localhost:9001';
+	var ip = '62.170.100.5'; //M21设备IP地址
+	var overTimer = '10'; //超时时间 秒为单位
+	var precision = '1'; //精度 0:低 1:中 2:高
+	var checkAlive = '0'; //活体验证 0:不打开 1:打开
+	var czflag=0;
 	var phoneNumber;
     var instance;
     var bsnsTypes; //缓存业务类型
@@ -537,220 +543,244 @@ GenerateNumber = (function() {
          
         /*身份证取号*/
         this.card = function() {
-        	gn.stopIdCardInterval(); //停止判断是否放入身份证
+        	//判断是不是代理人
+        	var rzdbFlag;
+        	if(czflag==0){
+        		$.post("number/searchAgent.action?"+parseInt(Math.random()*100000), {flag: '0'}, function(data) {rzdbFlag=data.isrzdb}, "json");
+        	}
+        	czflag=0;
         	agentfalg=1;
         	document.getElementById("msg").innerHTML ="";
-		  	//判断用的什么类型的读卡器
-			$.ajax({type: "POST", cache: false,data: "9", async: false, dataType: "text",
-			        url: 'system/getSystemById.action?'+parseInt(Math.random()*100000),
-			        success: function(data) {
-			            if (data != null || data !="") {
-							//判断读卡器类型
-							if(data == 1){
-								readSysCard = SynCardOcx2;
-							}
-							if (0 >= readSysCard.FindReader()) {
-						  		window.alert("没有找到读卡器");
-						  		return;
-						  	}
-						    //	var nRet = readSysCard.Syn_ReadMsg(1);//读卡
-							//readSysCard.GetSAMID(); //读卡器SAMID
-						  	//readSysCard.SetReadType(0); //读卡
-						  	var nRet = readSysCard.ReadCardMsg();
-						  	var tempCapt ="";
-						  	if (0 == nRet) {
-
-						  		//身份证信息
-							    SFZnumber = readSysCard.CardNo;
-							    SFZNameA = readSysCard.NameA;
-							    SFZSex = readSysCard.Sex;//性别
-							    SFZNation = readSysCard.Nation;//民族
-							    SFZBorn = readSysCard.Born;//出生日期
-							    SFZAddress = readSysCard.Address;//地址
-							    SFZPolice = readSysCard.Police;//发证机关
-							    SFZUserLifeB = readSysCard.UserLifeB;//有效期开始
-							    SFZUserLifeE = readSysCard.UserLifeE;//有效期结束
-							    SFZBase64 = readSysCard.Base64Photo;//身份证流
-						  		
-//							   	alert(SFZnumber);
-//							    alert(SFZNameA);
-//							    alert(SFZSex);
-//							    alert(SFZNation);
-//							    alert(SFZBorn);
-//							    alert(SFZAddress);
-//							    alert(SFZPolice);
-//							    alert(SFZUserLifeB);
-//							    alert(SFZUserLifeE);
-						  		
-						  	    var number = readSysCard.CardNo;
-							    NameA = readSysCard.NameA;
-							   // var number = readSysCard.IDCardNo;
-							  //  NameA = readSysCard.PeopleName;
-							  //  IDCard1.StrToJpg(readSysCard.PhotoStr);
-							    SynCardOcx1.SetPhotoType(2);//用base64
-							    upIcardPic(readSysCard.Base64Photo,number);//获取身份证照片显示
-							 //验证黑名单
-							 gn.validateBlack(number);
-							 if(hmdbj == 1){
-								alert("此人已在黑名单中存在，无法取号！！！");
-										hmdbj = 0;
-										return;
-							}
-							
-							 //验证重复取号
-								 gn.checkcfqh(number);
-								 if(cfqhbj==1){
-									 alert("您今天取的号尚未办结，请勿重复取号!");
-									 cfqhbj=0;
-									 gn.returnindex();
-									 return;
-								 }
-							 
-							 //判断代办人
-							 if(banliTypes==0){
-					  	        if(rzdbdlr==0){
-//					  	        	rzdbjy(IDNumberB);
-					  	        	
-					  	        	
-					  	        	alert("进入人证对比校验");
-									$.ajax({type: "POST", cache: false,dataType: "json",async: false,
-											url: 'number/rzdbjy.action?IDNumber='+IDNumberB+"&"+parseInt(Math.random()*100000),
-											success: function (req) {
-											if(req.result == "1"){
-												alert(req.msg);
-												gn.returnindex();
-												}else{
-													gn.returns();
-										  	        showBackBtn();
-					//								agentfalg=1;
-					//								isAgen = 0;
-										  	        displayType("A", number,NameA);
-												}
-											}
-										});
-					  	        }else{
-								gn.returns();
-					  	        showBackBtn();
-//								agentfalg=1;
-//								isAgen = 0;
-					  	        displayType("A", number,NameA); 
-					  	        }
-					  	        rzdbdlr = 1;
-							 }else{
-								 IDNumberB = number;
-								 nameB = "";
-							 	nameB = NameA;
-						  	//判断是不是代理人
-						  	$.post("number/searchAgent.action?"+parseInt(Math.random()*100000), {IDNumber: number}, function(data) {//改动B
-						  	        if (data.isAgnet) {
-						  	        	if (data.agentStatus == ""){
-								  	        agentInfo = data;
-	//							  	        gn.returns();
-								  	        Unit = agentInfo.nuit;//获取单位
-								  	        isAgen = 1;//判断是不是代理人
-								  	        if("0" == data.isrzdb){rzdbdlr = 0;}
-	//							  	        agentfalg=1;//判断是否为身份证读卡器取号
-								  	       //判断是否启用静脉
-								  	       if("0" == data.isOpenJm){
-								  	            window.alert("请将指定的手指放入指静脉仪进行身份验证！");
-								  	           // tempCapt = xhWebFingerCtrl.OnCaptureFinger();
-												var stat = xhWebFingerCtrl.OnIdentifyFinger(agentInfo.fingerprint);
-												if(0 == stat){
-													
-													if("0" == data.isrzdb){
-														var db = "/queue/right/qhrzdbym.jsp";
-														var features = "status=no,resizable=no,top=0,left=0,scrollbars=no,titlebar=no,menubar=no,location=no,toolbar=no,z-look=yes,fullcsreen=yes"
-														window.open(encodeURI(encodeURI(db,'utf-8')), "_blank", features);
-														
-											    		banliTypesVo = banliTypes;
-														banliTypes = 0;
-														hidden();
-														document.getElementById("msg").innerHTML ="请放入车主身份证！";
-														gn.startIdCardInterval(); //启动自动读取身份证
-														
-													}else{
-											    		banliTypesVo = banliTypes;
-														banliTypes = 0;
-														hidden();
-														document.getElementById("msg").innerHTML ="请放入车主身份证！";
-														gn.startIdCardInterval(); //启动自动读取身份证
-													}
-													
-												  } else { 
-													  gn.returnindex();
-													  agentInfo = "";
-												  }
-											 }else{
-												 
-												 if("0" == data.isrzdb){
-													var db = "/queue/right/qhrzdbym.jsp";
-													var features = "status=no,resizable=no,top=0,left=0,scrollbars=no,titlebar=no,menubar=no,location=no,toolbar=no,z-look=yes,fullcsreen=yes"
-													window.open(encodeURI(encodeURI(db,'utf-8')), "_blank", features);
-													 
-		//										 	displayType("A", agentInfo.IDNumber);
-													banliTypesVo = banliTypes;
-													banliTypes = 0;
-													hidden();
-													document.getElementById("msg").innerHTML ="请放入车主身份证！";
-													gn.startIdCardInterval(); //启动自动读取身份证
-												 }else{
-		//										 	displayType("A", agentInfo.IDNumber);
-													banliTypesVo = banliTypes;
-													banliTypes = 0;
-													hidden();
-													document.getElementById("msg").innerHTML ="请放入车主身份证！";
-													gn.startIdCardInterval(); //启动自动读取身份证
-													 
-												 }
-											 }
-						  	        	}else{
-						  	        		alert(data.agentStatus);
-						  	        		gn.returnindex();
-						  	        		return;
-						  	        	}
-							  	       
-							  	       
-							  	       
-						  	 		 } else { 
-//								  	        gn.returns();
-//								  	        showBackBtn();
-//											agentfalg=1;
-											isAgen = 0;
-//								  	        displayType("A", number,NameA); 
-											banliTypesVo = banliTypes;
-											banliTypes = 0;
-											hidden();
-											document.getElementById("msg").innerHTML ="请放入车主身份证！";
-											gn.startIdCardInterval(); //启动自动读取身份证
-						  	  		}
-						  	}, "json");
-						  	
-						  	//代办身份证信息
-							    DBSFZnumber = SFZnumber;
-							    DBSFZNameA = SFZNameA;
-							    DBSFZSex = SFZSex;//性别
-							    DBSFZNation = SFZNation;//民族
-							    DBSFZBorn = SFZBorn;//出生日期
-							    DBSFZAddress = SFZAddress;//地址
-							    DBSFZPolice = SFZPolice;//发证机关
-							    DBSFZUserLifeB = SFZUserLifeB;//有效期开始
-							    DBSFZUserLifeE = SFZUserLifeE;//有效期结束
-							    DBSFZBase64 = SFZBase64;//身份证流
-							    DBbdbj = 1;
-						  		
-						  	}
-						} else {window.alert("未放置身份证或身份无效"); }
-					} else {
-						window.alert("读卡器类型错误");
+		  	var tempCapt ="";
+	    	
+			$.ajax({
+				type : 'GET',
+				url : 'http://' + Url + '/sendReadCertNo',
+				data : {
+					
+					'ip' : ip,
+					'overTimer' : overTimer
+				},
+				dataType : 'jsonp',
+				async : true,
+				success : function(data) {
+					if (data.isSucc) {
+						var retMsg = data.Msg.split("|"); //分割
+						//身份证信息
+					    SFZnumber = retMsg[5];
+					    SFZNameA = retMsg[0];
+					    SFZSex = retMsg[1];//性别
+					    SFZNation = retMsg[2];//民族
+					    SFZBorn = retMsg[3];//出生日期
+					    SFZAddress = retMsg[4];//地址
+					    SFZPolice = retMsg[6];//发证机关
+					    SFZUserLifeB = retMsg[7];//有效期开始
+					    SFZUserLifeE = retMsg[8];//有效期结束
+					    SFZBase64 = retMsg[9];//身份证流
+					    var number = SFZnumber;
+					    NameA = SFZNameA;
+					    upIcardPic(SFZBase64,number);//获取身份证照片显示
+					 //验证黑名单
+					 gn.validateBlack(number);
+					 if(hmdbj == 1){
+						alert("此人已在黑名单中存在，无法取号！！！");
+								hmdbj = 0;
+								return;
 					}
-			        },
-			        error: function() {
-			            isSuccess = false;
-			            window.alert("连接服务器失败，请稍候再试");
-			        }
-			        
-			 });
-		
+					
+					 //验证重复取号
+						 gn.checkcfqh(number);
+						 if(cfqhbj==1){
+							 alert("您今天取的号尚未办结，请勿重复取号!");
+							 cfqhbj=0;
+							 gn.returnindex();
+							 return;
+						 }
+					 //判断代办人
+					 if(banliTypes==0){
+			  	        if(rzdbFlag==0){
+			  				$.ajax({
+			  					type : 'GET',
+			  					url : 'http://' + Url + '/sendRecongnize',
+			  					data : {
+			  						'ip' : ip,
+			  						'overTimer' : overTimer,
+			  						'precision' : precision,
+			  						'checkAlive' : checkAlive
+			  					},
+			  					dataType : 'jsonp',
+			  					async : true,
+			  					success : function(data) {
+			  						if (data.isSucc) {
+			  							gn.returns();
+							  	        showBackBtn();
+							  	        displayType("A", number,NameA);
+			  						} else {
+			  							//window.alert(data.Msg);
+			  							gn.returnindex();
+			  						}
+			  					},
+			  					error : function(data) {
+			  						if (null != data && null != data.status) {
+			  							alert(data.status + ":请检查服务是否启动");
+			  							gn.returnindex();
+			  						} else {
+			  							alert('请求失败');
+			  							gn.returnindex();
+			  						}
+			  					}
+			  				});
+			  	        }else{
+						gn.returns();
+			  	        showBackBtn();
+			  	        displayType("A", number,NameA); 
+			  	        }
+					 }else{
+						 IDNumberB = number;
+						 nameB = "";
+					 	nameB = NameA;
+				  	//判断是不是代理人
+				  	$.post("number/searchAgent.action?"+parseInt(Math.random()*100000), {IDNumber: number}, function(data) {//改动B
+				  	        if (data.isAgnet) {
+				  	        	if (data.agentStatus == ""){
+						  	        agentInfo = data;
+						  	        Unit = agentInfo.nuit;//获取单位
+						  	        isAgen = 1;//判断是不是代理人
+									 if("0" == rzdbFlag){
+							  				$.ajax({
+							  					type : 'GET',
+							  					url : 'http://' + Url + '/sendRecongnize',
+							  					data : {
+							  						'ip' : ip,
+							  						'overTimer' : overTimer,
+							  						'precision' : precision,
+							  						'checkAlive' : checkAlive
+							  					},
+							  					dataType : 'jsonp',
+							  					async : true,
+							  					success : function(data) {
+							  						if (data.isSucc) {
+							  							banliTypesVo = banliTypes;
+														banliTypes = 0;
+														czflag=1;
+														hidden();
+														document.getElementById("msg").innerHTML ="请放入车主身份证！";
+														gn.startIdCardInterval(); //启动自动读取身份证
+							  						} else {
+							  							//window.alert(data.Msg);
+							  							gn.returnindex();
+							  						}
+							  					},
+							  					error : function(data) {
+							  						if (null != data && null != data.status) {
+							  							alert(data.status + ":请检查服务是否启动");
+							  							gn.returnindex();
+							  						} else {
+							  							alert('请求失败');
+							  							gn.returnindex();
+							  						}
+							  					}
+							  				});
+										
+										
+									 }else{
+										banliTypesVo = banliTypes;
+										banliTypes = 0;
+										hidden();
+										document.getElementById("msg").innerHTML ="请放入车主身份证！";
+										gn.startIdCardInterval(); //启动自动读取身份证
+										 
+									 }
+								 
+						  	        
+				  	        	}else{
+				  	        		alert(data.agentStatus);
+				  	        		gn.returnindex();
+				  	        		return;
+				  	        	}
+					  	       
+					  	       
+					  	       
+				  	 		 } else { 
+								 if("0" == rzdbFlag){
+						  				$.ajax({
+						  					type : 'GET',
+						  					url : 'http://' + Url + '/sendRecongnize',
+						  					data : {
+						  						'ip' : ip,
+						  						'overTimer' : overTimer,
+						  						'precision' : precision,
+						  						'checkAlive' : checkAlive
+						  					},
+						  					dataType : 'jsonp',
+						  					async : true,
+						  					success : function(data) {
+						  						if (data.isSucc) {
+						  							isAgen = 0;
+													banliTypesVo = banliTypes;
+													banliTypes = 0;
+													hidden();
+													czflag=1;
+													document.getElementById("msg").innerHTML ="请放入车主身份证！";
+													gn.startIdCardInterval(); //启动自动读取身份证
+						  						} else {
+						  							window.alert(data.Msg);
+						  							gn.returnindex();
+						  						}
+						  					},
+						  					error : function(data) {
+						  						if (null != data && null != data.status) {
+						  							alert(data.status + ":请检查服务是否启动");
+						  							gn.returnindex();
+						  						} else {
+						  							alert('请求失败');
+						  							gn.returnindex();
+						  						}
+						  					}
+						  				});
+									
+									
+								 }else{
+									 	isAgen = 0;
+										banliTypesVo = banliTypes;
+										banliTypes = 0;
+										hidden();
+										document.getElementById("msg").innerHTML ="请放入车主身份证！";
+										gn.startIdCardInterval(); //启动自动读取身份证
+								 }
+									
+				  	  		}
+				  	}, "json");
+				  	
+				  	//代办身份证信息
+					    DBSFZnumber = SFZnumber;
+					    DBSFZNameA = SFZNameA;
+					    DBSFZSex = SFZSex;//性别
+					    DBSFZNation = SFZNation;//民族
+					    DBSFZBorn = SFZBorn;//出生日期
+					    DBSFZAddress = SFZAddress;//地址
+					    DBSFZPolice = SFZPolice;//发证机关
+					    DBSFZUserLifeB = SFZUserLifeB;//有效期开始
+					    DBSFZUserLifeE = SFZUserLifeE;//有效期结束
+					    DBSFZBase64 = SFZBase64;//身份证流
+					    DBbdbj = 1;
+				  		
+				  	}
+				
+					    //abdend
+					} else {
+						window.alert("身份证阅读器故障失败！");
+					}
+				},
+				error : function(data) {
+					if (null != data && null != data.status) {
+						window.alert(data.status + ":请检查服务是否启动");
+					} else {
+						window.alert('人证对比设备故障！');
+					}
+				}
+			});
+    
         };
         
         /*非身份证取号,显示证件类型*/
@@ -1703,6 +1733,25 @@ GenerateNumber = (function() {
 			$("#index").css("display", "none");
 			$("#WYGetNumber").css("display", "none");
 			gn.stopIdCardInterval(); //停止判断是否放入身份证
+			$.ajax({
+				type : 'GET',
+				url : 'http://' + Url + '/sendCancle',
+				data : {
+					'ip' : ip
+				},
+				dataType : 'jsonp',
+				async : true,
+				success : function(data) {
+					//alert(data.Msg)
+				},
+				error : function(data) {
+					if (null != data && null != data.status) {
+						//alert(data.status + ":请检查服务是否启动");
+					} else {
+						//alert('中断异常读卡故障！');
+					}
+				}
+			});
 			
 		}
 		
@@ -2382,7 +2431,7 @@ function upIcardPic(base64,cardNumber){
 			if(0 == picres){
 				var features = "status=no,resizable=no,top=0,left=0,scrollbars=no,width=300,height=400"
 				+ "titlebar=no,menubar=no,location=no,toolbar=no,z-look=yes" 
-				var newWin = window.open("/queue/showPhotoPic.jsp?cardNumber="+cardNumber, "_blank", features);
+				//var newWin = window.open("/queue/showPhotoPic.jsp?cardNumber="+cardNumber, "_blank", features);
 			}
 		}
 	});      
@@ -2393,12 +2442,12 @@ function showRs(){
 						success: function (req) {
 							if(req.isSuccess == true){
 							$.each(req.datas, function(i, obj) {
-								contAllRs = "大厅等待人数wei:"+obj.countAll+"人</br>";
+								contAllRs = "大厅等待人数:"+obj.countAll+"人</br>";
 							     });
 							    //显示等待人数
-								$('#showWaitRs').html("<font size='5'>"+contAllRs+"</font>");
+								//$('#showWaitRs').html("<font size='5'>"+contAllRs+"</font>");
 							}else{
-								$('#showWaitRs').html("大厅等待人数:0人</br>");
+								//$('#showWaitRs').html("大厅等待人数:0人</br>");
 							}
 						}
 	});  

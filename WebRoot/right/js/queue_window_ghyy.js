@@ -53,6 +53,7 @@ SWindow = (function() {
     }
     
     function ajax(action, params, callback) {
+    	alert(action);
         $.ajax({type: "GET", cache: false, dataType: "jsonp",
         	jsonp: "callback", data: params, async: false,
 	        url: "http://" + _serverIP + "/queue/" + action + "?callback=?",

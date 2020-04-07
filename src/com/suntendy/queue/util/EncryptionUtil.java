@@ -1,7 +1,11 @@
 package com.suntendy.queue.util;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+
 
 public class EncryptionUtil {
 	/**
@@ -42,13 +46,52 @@ public class EncryptionUtil {
         return new String(resultCharArray);  
     }
     
-    public static void main(String[] args){
-    	try {
-    		String a="ADAR1RNVL2-G1I64W6A3UM0G9ABP9JA2-XFMC13XJ-1asDgasJKS0238kJDFs98SDF23SD0";
-			System.out.println("加密========"+EncryptionUtil.encodingMd5(a));
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+    private static String getLocalMac(InetAddress ia) throws SocketException {
+		// TODO Auto-generated method stub
+		//获取网卡，获取地址
+		byte[] mac = NetworkInterface.getByInetAddress(ia).getHardwareAddress();
+		StringBuffer sb = new StringBuffer("");
+		for(int i=0; i<mac.length; i++) {
+			if(i!=0) {
+				sb.append("-");
+			}
+			//字节转换为整数
+			int temp = mac[i]&0xff;
+			String str = Integer.toHexString(temp);
+			if(str.length()==1) {
+				sb.append("0"+str);
+			}else {
+				sb.append(str);
+			}
 		}
+		return sb.toString().toUpperCase();
+	}
+    
+    public static int yfJym(String bdjym, String jym) throws Exception {
+		  bdjym=EncryptionUtil.encodingMd5(bdjym);
+		  jym=EncryptionUtil.encodingMd5(jym);
+		  System.out.println("本地校验码:"+bdjym+"-对比-云帆校验码:"+jym);
+		  if(bdjym.equals(jym)){
+			  return 0;
+		  }else {
+			  return 1;
+		}
+	  } 
+    
+    public static void main(String[] args) throws Exception{
+    		String a="p6pzg9n64pe81xww06rfnl7s920190627000006697ALSKDSwe09JF0912kJDd01ODosdjs8";
+    		InetAddress addr = InetAddress.getLocalHost();
+			String[] serIP=addr.toString().split("/");
+			String serverIP=serIP[1];
+			String serverMark=getLocalMac(addr);
+			String deptCodeTop="411300";
+			String deptCodeTail="000000";
+			String masterkeyEnd ="20660716";//授权码有效期止
+			String masterkeys ="20190716";
+		    String bdjym = serverIP+masterkeys+deptCodeTop+serverMark+masterkeyEnd+deptCodeTail;//本机校验码组合
+		    System.out.println(bdjym);
+            int key=yfJym(bdjym, bdjym);
+            System.out.println(key);
+			System.out.println("未加密========"+bdjym);
 	}
 }

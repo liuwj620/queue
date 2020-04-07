@@ -53,5 +53,9 @@
 		<action name="countIdNumber" class="queryCallNumber" method="countIdNumber">
 			<result name="countidnumber">/count/idNumberCount.jsp</result>
 		</action>
+		<!-- 根据号码查询人证对比值 -->
+		<action name="getrzdbz" class="queryCallNumber" method="getrzdbz">
+			<result name="success">/count/rzdbz.jsp</result>
+		</action>
 	</package>
 </xwork>

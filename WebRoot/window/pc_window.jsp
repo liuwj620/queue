@@ -19,13 +19,18 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<title>用户办理信息显示窗口</title>
 	<link rel="stylesheet" type="text/css" href="/queue/queue/css/fetch.css" />
 	<link rel="stylesheet" type="text/css" href="/queue/window/css/PcWinCss.css" />
+	<script src="js/jquery-3.3.1.js" type="text/javascript"></script> 
 	<script type="text/javascript">
-	
-		window.onload = function(){
+	    
+	   $(document).ready(function() { 
+	       $('html, body').animate({scrollTop:0}, 'slow');     
+	    });  
+	    
+	    window.onload = function(){
 			var url = '/queue/number/autoLogin.action';
 		    var operatorInfo = {loginIP:'<%=ip%>'};
 		    $.post(url, operatorInfo, function(datas) {
@@ -113,29 +118,35 @@
 	</style>
 	</head>
 	<body scroll="no" ondragstart="return false">
+
+	<input type="hidden" id="autopj" value="1" />
+	<input type="hidden" id="base64Photo" name="base64Photo"/>
+	<audio id="please" src="/queue/plugs/voice/pleaseEval.wav"></audio>
+	<audio id="thanks" src="/queue/plugs/voice/thanks.wav"></audio>  
 	<object id="jsrzP" classid="clsid:C3FF8650-C1AC-4E41-9474-6C27A58502D6" width="0" height="0" align="middle" CODEBASE="/queue/plugs/camera/zdywzp.CAB#version=1.0.0.3"></object>
 		<div style="height: 0;width: 0" style="display:none">
 			<input type="hidden" id="operNum" name="operNum" />
 			<input type="hidden" id="loginIP" name="loginIP" />
 			<input type="hidden" id="base64Code" name="base64Code" />
-			<EMBED id="please" src="/queue/plugs/voice/pleaseEval.wav" autostart=false hidden=true loop=0></EMBED>
-			<EMBED id="thanks" src="/queue/plugs/voice/thanks.wav" autostart=false hidden=true loop=0></EMBED>
 		</div>
 		
-		
+		<div id="retMsg"></div>
+		<img  id="user_pic" src=""/>
 		
 	    <!-- 欢迎页 -->
-		<div id="_welcome" class="outer"  style="">
-			<div class="top"></div>
+		<div id="_welcome" class="outer2">
+		<div class="inner jh_qz_welcome"></div>
+			<!-- <div class="top"></div>
 			<div class="inner jh_qz_welcome"></div>
-			<div class="bottom"></div>
+			<div class="bottom"></div> -->
 		</div>
 		
 		<!-- 暂停服务 -->
 		<div id="_pause" class="outer" style="display:none">
-			<div class="top"></div>
+			<!-- <div class="top"></div>
 			<div class="inner jh_qz_pause"></div>
-			<div class="bottom"></div>
+			<div class="bottom"></div> -->
+			<div class="inner jh_qz_pause"></div>
 		</div>
 		
 		
@@ -206,7 +217,6 @@
 	</div>
 		
 		<div id="data_show" class="outer" style="display:none">
-			<div class="top"></div>	
 			<div class="inner jh_qz">			
 					<!-- 显示时间 -->
 	            <div id="showtime" class="showtime" style="position:absolute;top:655px;left:160px;">
@@ -235,9 +245,6 @@
 	            			
 	            			currentime.innerHTML="当前时间:  "+today.getFullYear()+"年"+(today.getMonth()+1)+"月"+today.getDate()+"日  "+today.getHours()+"时"+today.getMinutes()+"分"+today.getSeconds()+"秒";
 	            		},1000)
-	            				
-	            				
-	            			
 	      			</script>
 	      			
 	            </div>
@@ -256,9 +263,9 @@
 	            	<img id="imgzt" style="width: 815px;height: 591px;" src="/queue/images/welcome.jpg" />
 	            </div>
 	            
-				<div class="div2">
+				<%-- <div class="div2">
 					<marquee direction="left" scrollamount="3">${allMsg}</marquee>
-				</div>
+				</div> --%>
 				
 				
 				
@@ -288,18 +295,19 @@
 					<!-- <br/>
 					<br/>
 					<br/> -->
-						<div id="div_dqhm"></div>
+					
+						<div id="div_dqhm" style="z-index: 8;"></div>
    						<div id="quhaophoto" style="width:360px;height:180px;border:2px;position:relative;left:-3px;top:1px;background-color: #EBDBC4;display: none;"></div>
 				</div>
 				<!-- 不弹确认评价框-->
 				<ww:if test="${(pjtype eq 0) &&(qrpjtype eq 1)}">
-					<div class="div4" id="_eval" style="display:none">
+				<%-- 	<div class="div4" id="_eval" style="display:none">
 						<c:forEach var="item" items="${evalueList}">
 							<c:if test="${item.state=='1'}">
 								<a href="#" class="${item.evalueclass }" onclick="doEval('${item.id}','1');return false;">${item.name }</a>
 							</c:if>
 						</c:forEach>
-					</div>
+					</div> --%>
 				</ww:if >
 				<ww:elseif test="${(pjtype eq 1)  &&(qrpjtype eq 1)}">
 					<div id="_eval" class="div_pop" style="width:60%;height:300px;background-color:#008DD4;display:none">
@@ -314,16 +322,17 @@
 					</div>
 				</ww:elseif>
 				<!-- 不弹确认评价框 -->
-				
+				<div class="PJFG" style="position: absolute; left: 903px; top: 506px;background-color:white;width: 500px;height: 300px; z-index: -1;">
+					</div>
 				<!-- 弹确认评价框 -->
 				<ww:if test="${(pjtype eq 0) &&(qrpjtype eq 0)}">
-					<div class="div4" id="_eval" style="display:none">
+					<%-- <div class="div4" id="_eval" style="display:none">
 						<c:forEach var="item" items="${evalueList}">
 							<c:if test="${item.state=='1'}">
 								<a href="#" class="${item.evalueclass }" onclick="confirmBox('${item.id}','1');return false;">${item.name }</a>
 							</c:if>
 						</c:forEach>
-					</div>
+					</div> --%>
 				</ww:if>
 				<ww:elseif test="${(pjtype eq 1) &&(qrpjtype eq 0)}">
 					<div id="_eval" class="div_pop" style="width:60%;height:300px;background-color:#008DD4;display:none">
@@ -339,6 +348,7 @@
 				</ww:elseif>
 				<input type="hidden" value="" id="hidden" name="hidden"/>
 				<input type="hidden" value="" id="hidden2" name="hidden2"/>
+				
 				<!-- <input type="button" value="测试" onclick="confirmBox()"/>  -->
 				<div id="test" class="div_pop" style="top:300px;left:400px;width:40%;height:200px;background-color:#008DD4;display:none"> 
 					<a><font size="25px;"><b>确认评价结果</b></font></a><br/><br/><br/>
@@ -354,8 +364,8 @@
 				</div>
 				<div id="next" class="style1" style="display:none"></div>
 			</div>
-			<div class="bottom"></div>
 		</div>
+		
 	<script type="text/javascript" src="/queue/js/ajax.js?ver=<%=jsVer%>"></script>
     <script type="text/javascript" src="/queue/js/jquery.js?ver=<%=jsVer%>"></script>
 	<script type="text/javascript" src="/queue/dwr/util.js?ver=<%=jsVer%>"></script>
@@ -364,8 +374,10 @@
 	<script type="text/javascript" src="/queue/window/js/qrcode.js?ver=<%=jsVer%>"></script>
 	<script type="text/javascript" src="/queue/window/js/pc_window.js?ver=<%=jsVer%>"></script>
 	<script type="text/javascript">JspRegister.register("<%=ip%>", "S");</script>
+	
 <!-- 	<div style="width:100%;padding-top:300px;background:url(../images/queue/bg_jh_qz_all.jpg) repeat;">
 		<object id="HWPenSign" name="HWPenSign" classid="clsid:E8F5278C-0C72-4561-8F7E-CCBC3E48C2E3" width="600" height="300"></object>
 	</div> -->
+	
 	</body>
 </html>

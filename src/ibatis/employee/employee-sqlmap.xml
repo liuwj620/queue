@@ -11,7 +11,7 @@
 		resultClass="employee">
 		SELECT
 		t.loginip,t.deptcode,t.RSACheck,t.modulerdac,t.depthall,t.id,t.code,t.name,t.idnumber,t.police,t.password,t.yhyxq,t.kdlip,t.kdlsjd,t.sex,t.photo,t.comments,t.department,t.user_flag
-		userFlag,t.status,t.editdate,t.levelid,t.role,t.policeCode,t.passCode
+		userFlag,t.status,t.editdate,t.levelid,t.role,t.policeCode,t.passCode,t.WSIp
 		<isNotEmpty property="flag">
 			<isEqual property="flag" compareValue="0">,a.ip loginIp</isEqual>
 		</isNotEmpty>
@@ -37,6 +37,8 @@
 		</isNotEmpty>
 		<isNotEmpty property="police">AND t.police=#police#</isNotEmpty>
 		<isNotEmpty property="moduleRdac">AND t.moduleRdac=#moduleRdac#
+		</isNotEmpty>
+		<isNotEmpty property="policeCode">AND t.policeCode=#policeCode#
 		</isNotEmpty>
 		<isNotEmpty property="id">AND t.id=#id#</isNotEmpty>
 		AND t.id>0
@@ -100,8 +102,8 @@
 			SELECT seq_pd_user_id.nextval id FROM dual
 		</selectKey>
 		INSERT INTO
-		pd_user(id,code,name,department,user_flag,deptcode,depthall,photo,comments,loginIp,RSACheck)
-		VALUES(#id#,#code#,#name#,#department#,0,#deptCode#,#deptHall#,#photo#,#comments#,#loginIp#,#RSACheck#)
+		pd_user(id,code,name,department,user_flag,deptcode,depthall,photo,comments,loginIp,WSIp,RSACheck)
+		VALUES(#id#,#code#,#name#,#department#,0,#deptCode#,#deptHall#,#photo#,#comments#,#loginIp#,#WSIp#,#RSACheck#)
 	</insert>
 
 	<insert id="addLoginLog" parameterClass="employee">
@@ -185,6 +187,9 @@
 		</isNotEmpty>
 		<isNotEmpty property="RSACheck" prepend=",">
 			t.RSACheck=#RSACheck#
+		</isNotEmpty>
+		<isNotEmpty property="WSIp" prepend=",">
+			t.WSIp=#WSIp#
 		</isNotEmpty>
 		<isNotEmpty property="moduleRdac" prepend=",">
 			t.modulerdac=#moduleRdac#

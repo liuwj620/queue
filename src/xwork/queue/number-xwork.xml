@@ -31,6 +31,12 @@
 		<!-- 本地小窗口登录 -->
 		<action name="loginWS" class="loginWSAction" method="login"></action>
 		
+		<!-- 本地小窗口向外屏推送人证对比信息 -->
+		<action name="Rzdbts" class="loginWSAction" method="Rzdbts"></action>
+		
+		<!-- 本地小窗口向内屏推送人证对比结果 -->
+		<action name="rzdbResult" class="loginWSAction" method="rzdbResult"></action>
+		
 		<action name="autoLogin" class="loginWSAction" method="autoLogin"></action>
 		<!-- 电视窗口屏初始化 -->
 		<action name="dsAutoInit" class="loginWSAction" method="dsAutoInit"></action>

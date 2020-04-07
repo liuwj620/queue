@@ -4,12 +4,10 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
 		http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-	<bean id="numberDao"
-		class="com.suntendy.queue.queue.dao.impl.NumberDaoImpl"
+	<bean id="numberDao" class="com.suntendy.queue.queue.dao.impl.NumberDaoImpl"
 		parent="baseDao" />
 
-	<bean id="numberService"
-		class="com.suntendy.queue.queue.service.impl.NumberServiceImpl">
+	<bean id="numberService" class="com.suntendy.queue.queue.service.impl.NumberServiceImpl">
 		<property name="numberDao" ref="numberDao" />
 		<property name="publisher" ref="publisher" />
 		<property name="codeService" ref="codeService" />
@@ -17,75 +15,72 @@
 		<property name="setWindowDao" ref="setWindowDao" />
 		<property name="ledService" ref="ledService" />
 		<property name="businessDao" ref="businessDao" />
-		<property name="saveSfzPhotoDao" ref="saveSfzPhotoDao"/>
-		<property name="zhpcallnumDao" ref="zhpcallnumDao"/>
+		<property name="saveSfzPhotoDao" ref="saveSfzPhotoDao" />
+		<property name="zhpcallnumDao" ref="zhpcallnumDao" />
 		<property name="deptDao" ref="deptDao"></property>
+		<property name="iEmployeeService" ref="employeeService"/>
 	</bean>
 
-	<bean name="generateNumberAction"
-		class="com.suntendy.queue.queue.action.GenerateNumberAction">
+	<bean name="generateNumberAction" class="com.suntendy.queue.queue.action.GenerateNumberAction">
 		<property name="numberService" ref="numberService" />
-		<property name="printSetService" ref ="printSetService" />
+		<property name="printSetService" ref="printSetService" />
 		<property name="logService" ref="logService" />
-		<property name="tuibanService" ref="tuibanService"/>
-		<property name="zzjService" ref="zzjService"/>
+		<property name="tuibanService" ref="tuibanService" />
+		<property name="zzjService" ref="zzjService" />
 		<property name="reservationService" ref="reservationService" />
 		<property name="yyjkService" ref="yyjkService" />
 		<property name="deptService" ref="deptService" />
 		<property name="iSystemLogService" ref="iSystemLogService" />
 	</bean>
 
-	<bean name="searchAgentAction"
-		class="com.suntendy.queue.queue.action.SearchAgentAction">
+	<bean name="searchAgentAction" class="com.suntendy.queue.queue.action.SearchAgentAction">
 		<property name="agentService" ref="agentService" />
 		<property name="numberService" ref="numberService" />
 		<property name="workService" ref="workService" />
 		<property name="hmdService" ref="hmdService" />
 	</bean>
 
-	<bean name="saveEvaluationAction"
-		class="com.suntendy.queue.queue.action.SaveEvaluationAction">
+	<bean name="saveEvaluationAction" class="com.suntendy.queue.queue.action.SaveEvaluationAction">
 		<property name="numberService" ref="numberService" />
 		<property name="publisher" ref="publisher" />
 		<property name="codeService" ref="codeService" />
-		<property name="nextWindowService" ref="nextWindowService"/>
+		<property name="nextWindowService" ref="nextWindowService" />
 	</bean>
 
-	<bean id="businessTypeAction"
-		class="com.suntendy.queue.queue.action.BusinessTypeAction">
+	<bean id="businessTypeAction" class="com.suntendy.queue.queue.action.BusinessTypeAction">
 		<property name="businessService" ref="businessService" />
 		<property name="queueService" ref="queueService" />
 		<property name="numberService" ref="numberService" />
 		<property name="codeService" ref="codeService" />
 		<property name="setWindowService" ref="setWindowService" />
 	</bean>
-	
-	<bean id="queueJieKou"
-		class="com.suntendy.queue.queue.action.QueueJieKou">
+
+	<bean id="queueJieKou" class="com.suntendy.queue.queue.action.QueueJieKou">
 		<property name="numberService" ref="numberService" />
-		<property name="setWindowService"><ref bean="setWindowService" /></property>
+		<property name="setWindowService">
+			<ref bean="setWindowService" />
+		</property>
 		<property name="deptService" ref="deptService"></property>
 		<property name="lzxxService" ref="lzxxService"></property>
 		<property name="lzckAction" ref="lzckAction"></property>
 	</bean>
 
-	<bean id="BeiAnXinXi"
-		class="com.suntendy.queue.queue.action.BeiAnXinXi">
-		<property name="setWindowService"><ref bean="setWindowService" /></property>
+	<bean id="BeiAnXinXi" class="com.suntendy.queue.queue.action.BeiAnXinXi">
+		<property name="setWindowService">
+			<ref bean="setWindowService" />
+		</property>
 		<property name="deptService" ref="deptService"></property>
 	</bean>
 
 
 
-	<bean id="rightWindowAction"
-		class="com.suntendy.queue.queue.action.RightWindowAction">
+	<bean id="rightWindowAction" class="com.suntendy.queue.queue.action.RightWindowAction">
 		<property name="numberService" ref="numberService" />
 		<property name="logService" ref="logService" />
 		<property name="passReasonService" ref="passReasonService" />
 	</bean>
-	
-	<bean id="queryCallNumber"
-		class="com.suntendy.queue.queue.action.QueryCallNumber">
+
+	<bean id="queryCallNumber" class="com.suntendy.queue.queue.action.QueryCallNumber">
 		<property name="numberService" ref="numberService" />
 		<property name="iSystemLogService" ref="iSystemLogService"></property>
 	</bean>

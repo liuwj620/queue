@@ -53,6 +53,7 @@ SWindow = (function() {
     }
     
     function ajax(action, params, callback) {
+    	
         $.ajax({type: "GET", cache: false, dataType: "jsonp",
         	jsonp: "callback", data: params, async: false,
 	        url: "http://" + _serverIP + "/queue/" + action + "?callback=?",
@@ -60,6 +61,7 @@ SWindow = (function() {
 	            callback(data);
 	        },
 	        error: function(xhr) {
+	        	alert(action);
 	            //请求出错(请检查相关度网络状况)
 	            setMsg("\u8bf7\u6c42\u51fa\u9519(\u8bf7\u68c0\u67e5\u76f8\u5173\u5ea6\u7f51\u7edc\u72b6\u51b5)");
 	        }
@@ -194,7 +196,12 @@ SWindow = (function() {
 			_params.reason = reason;
 		    ajax("right/pass.action", _params, function(data) {
 		        var msgArr = decodeURIComponent(data.msg).split("@");
-				setMsg(msgArr[0]);
+		        if(msgArr[0]==3){
+		        	setMsg(msgArr[2]);
+		        }else{
+		        	setMsg(msgArr[0]);
+		        	}
+				
 				if (1 < msgArr.length) {
 				    $("#queMsg").html("");
 				    timeout = setTimeout("forcedToNumber('"+_serverIP+"','0')", callNumberTime);//调用强制叫号

@@ -102,6 +102,7 @@ public class RightWindowAction extends BaseAction {
 
 		callback = callback + "({'msg':'" + numStr + "','count':'"
 				+ URLEncoder.encode(strTotal, "UTF-8") + "'})";
+		System.out.println(callback);
 		this.getResponse("text/html").getWriter().println(callback);
 		return null;
 	}

@@ -41,6 +41,7 @@ import com.suntendy.queue.util.scriptsession.event.PassEvent;
 import com.suntendy.queue.util.scriptsession.event.PauseOrRecoverEvent;
 import com.suntendy.queue.util.scriptsession.event.PauseOrRecoverEventZS;
 import com.suntendy.queue.util.scriptsession.event.ReadDataEvent;
+import com.suntendy.queue.util.scriptsession.event.RzdbTs;
 import com.suntendy.queue.util.scriptsession.event.SendPJXXEvent;
 import com.suntendy.queue.util.scriptsession.event.SendStatusCY;
 import com.suntendy.queue.util.scriptsession.event.ShowCallInfoEvent;
@@ -78,7 +79,6 @@ public class PublishEventListener implements ApplicationListener,
 			   System.out.println("进入电视窗口屏推送页面");
 			   final String[] content = ((String) event.getSource()).split("@");
 			   final String ip = content[0];
-			   System.out.println("推送ip为="+ip);
 			   final String ckid =content[1];
 			   final String ckmc = content[2];
 			   final String sxh = content[3];
@@ -169,7 +169,8 @@ public class PublishEventListener implements ApplicationListener,
 			final Employee employee = (Employee) event.getSource();
 			ScriptSessionManager ssm = ScriptSessionManager.getInstance();
 			final ScriptSession session = ssm.getValue("S@"
-					+ employee.getLoginIp());
+					+ employee.getWSIp());
+			System.out.println("登录外屏IP:"+employee.getWSIp());
 			if (null == session)
 				return;
 
@@ -199,7 +200,6 @@ public class PublishEventListener implements ApplicationListener,
 					e.printStackTrace();
 				}
 			}
-
 			final String photo = photos.get(employee.getCode());
 			Browser.withSession(session.getId(), new Runnable() {
 				public void run() {
@@ -1084,16 +1084,16 @@ public class PublishEventListener implements ApplicationListener,
 				}
 			});
 		} else if (event instanceof PassEvent) {// 过号显示滚动信息事件
-			final String content = (String) event.getSource();
+			final String[] content = ((String) event.getSource()).split("@");
 			ScriptSessionManager ssm = ScriptSessionManager.getInstance();
-			final ScriptSession session = ssm.getValue("S@" + content);
+			final ScriptSession session = ssm.getValue("S@" + content[0]);
 			if (null == session)
 				return;
 
 			Browser.withSession(session.getId(), new Runnable() {
 				public void run() {
 					ScriptBuffer buffer = new ScriptBuffer();
-					buffer.appendScript("passshowdata('" + content + "')");
+					buffer.appendScript("passshowdata('" + content[1] + "')");
 					session.addScript(buffer);
 
 				}
@@ -1102,6 +1102,7 @@ public class PublishEventListener implements ApplicationListener,
 			final String[] content = ((String) event.getSource()).split("@");
 			ScriptSessionManager ssm = ScriptSessionManager.getInstance();
 			final ScriptSession session = ssm.getValue("S@" + content[1]);
+			//final ScriptSession session = ssm.getValue("S@" + "192.168.1.70");
 			if (null == session)
 				return;
 
@@ -1120,6 +1121,7 @@ public class PublishEventListener implements ApplicationListener,
 			final ScriptSession session = ssm.getValue("S@" + content[0]);
 			if (null == session)
 				return;
+			
 			
 			if(num[0].equals("1")){
 				Browser.withSession(session.getId(), new Runnable() {
@@ -1170,18 +1172,36 @@ public class PublishEventListener implements ApplicationListener,
 				});
 				
 			}else{
-				Browser.withSession(session.getId(), new Runnable() {
-					public void run() {
-						ScriptBuffer buffer = new ScriptBuffer();
-						buffer.appendScript("showDualScreenInfo({number:'")
-								.appendScript(num[0]).appendScript("',")
-								.appendScript("isOpenIndexCamera:'")
-								.appendScript(num[2]).appendScript("',")
-								.appendScript("id:'").appendScript(num[1])
-								.appendScript("'})");
-						session.addScript(buffer);
-					}
-				});
+				if(num[3]!=null){
+					Browser.withSession(session.getId(), new Runnable() {
+						public void run() {
+							ScriptBuffer buffer = new ScriptBuffer();
+							buffer.appendScript("showDualScreenInfo({number:'")
+									.appendScript(num[0]).appendScript("',")
+									.appendScript("isOpenIndexCamera:'")
+									.appendScript(num[2]).appendScript("',")
+									.appendScript("id:'")
+									.appendScript(num[1]).appendScript("',")
+									.appendScript("numphoto:'")
+									.appendScript(num[3])
+									.appendScript("'})");
+							session.addScript(buffer);
+						}
+					});
+				}else {
+					Browser.withSession(session.getId(), new Runnable() {
+						public void run() {
+							ScriptBuffer buffer = new ScriptBuffer();
+							buffer.appendScript("showDualScreenInfo({number:'")
+									.appendScript(num[0]).appendScript("',")
+									.appendScript("isOpenIndexCamera:'")
+									.appendScript(num[2]).appendScript("',")
+									.appendScript("id:'").appendScript(num[1])
+									.appendScript("'})");
+							session.addScript(buffer);
+						}
+					});
+				}
 			}
 		} else if (event instanceof DualScreenEventYZ) {// 双屏信息事件验证
 			System.out.println("进入双屏页面状态验证");
@@ -1653,6 +1673,39 @@ public class PublishEventListener implements ApplicationListener,
 
 		} else if (event instanceof CYTangKuang) {
 
+		}else if (event instanceof RzdbTs) {
+			final String[] content = ((String) event.getSource()).split("@");
+			ScriptSessionManager ssm = ScriptSessionManager.getInstance();
+			String ip;
+ 			if("0".equals(content[0])){
+				ip="S@"+content[1];//双屏推送
+			}else{
+				ip="M@"+content[2];//小窗口推送
+			}
+			final ScriptSession session = ssm.getValue(ip);
+			
+			if (null == session)
+				return;
+			if("0".equals(content[0])){
+				Browser.withSession(session.getId(), new Runnable() {
+					public void run() {
+						ScriptBuffer buffer = new ScriptBuffer();
+						buffer.appendScript("sveinDb({loginIp: '")
+						.appendScript(content[2]).appendScript("'})");
+						session.addScript(buffer);
+					}
+				});
+			}else {
+				Browser.withSession(session.getId(), new Runnable() {
+					public void run() {
+						ScriptBuffer buffer = new ScriptBuffer();
+						buffer.appendScript("sveinRet({retCode: '")
+						.appendScript(content[1]).appendScript("'})");
+						session.addScript(buffer);
+					}
+				});
+			}
+				
 		}
 	}
 }

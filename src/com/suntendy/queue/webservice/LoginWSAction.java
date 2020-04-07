@@ -15,10 +15,19 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 
+import sun.misc.BASE64Decoder;
+
+import com.suntendy.queue.queue.domain.Number;
 import com.suntendy.queue.base.BaseAction;
 import com.suntendy.queue.employee.domain.Employee;
 import com.suntendy.queue.employee.service.IEmployeeService;
+import com.suntendy.queue.queue.service.INumberService;
+import com.suntendy.queue.util.Base64Util;
 import com.suntendy.queue.util.cache.CacheManager;
+import com.suntendy.queue.util.exception.UpdateException;
+import com.suntendy.queue.util.scriptsession.Publisher;
+import com.suntendy.queue.util.scriptsession.event.DualScreenEvent;
+import com.suntendy.queue.util.scriptsession.event.RzdbTs;
 import com.suntendy.queue.window.domain.Screen;
 import com.suntendy.queue.window.service.ISetWindowService;
 
@@ -26,17 +35,25 @@ public class LoginWSAction extends BaseAction {
 	private static final long serialVersionUID = 1L;
 	private IEmployeeService employeeService;
 	private ISetWindowService setWindowService;
-
+	private Publisher publisher;
+	private INumberService numberService;
+	
 	private static Map<String, String> photos = new HashMap<String, String>();
 
-
+	public void setPublisher(Publisher publisher) {
+		this.publisher = publisher;
+	}
 	public void setSetWindowService(ISetWindowService setWindowService) {
 		this.setWindowService = setWindowService;
 	}
 	public void setEmployeeService(IEmployeeService employeeService) {
 		this.employeeService = employeeService;
 	}
-
+	
+	
+	public void setNumberService(INumberService numberService) {
+		this.numberService = numberService;
+	}
 	public String autoLogin() throws Exception {
 		HttpServletRequest request = getRequest();
 		CacheManager cacheManager = CacheManager.getInstance();
@@ -252,4 +269,44 @@ public class LoginWSAction extends BaseAction {
         }  
         return "";  
     } 
+	
+	public void Rzdbts() throws IOException{
+		CacheManager cacheManager = CacheManager.getInstance();
+		String rzkg = cacheManager.getSystemConfig("hfhmrzdb");
+		HttpServletRequest request = getRequest();
+		String operNum = request.getParameter("operNum");
+		Employee employee=employeeService.getEmployeeByCode(operNum);
+		boolean result=false;
+		if("0".equals(rzkg)){
+			publisher.publish(new RzdbTs("0@"+employee.getWSIp()+"@"+employee.getLoginIp()));
+			//publisher.publish(new RzdbTs("0@"+"62.170.100.6"+"@"+"62.170.100.22"));
+			result=true;
+		}
+		this.getResponse().getWriter().print(result);
+	}
+	
+	public void rzdbResult() throws Exception{
+		CacheManager cacheManager = CacheManager.getInstance();
+		HttpServletRequest request = getRequest();
+		String loginIP = request.getParameter("loginIP");
+		String retCode = request.getParameter("retCode");
+		String nowNumber = request.getParameter("nowNumber");
+		String deptHall = cacheManager.getOfDeptCache("deptHall");
+		String deptCode = cacheManager.getOfDeptCache("deptCode");
+		String ywPhoto = request.getParameter("ywPhoto");
+		nowNumber=deptCode+deptHall+nowNumber;
+		Number number = new Number();
+		if("0".equals(retCode)){
+			retCode="90";
+		}else {
+			retCode="100";
+		}
+		byte[] bytes = Base64Util.decode(ywPhoto);
+		number.setQuhaoPhoto(bytes);
+		number.setRzdbz(retCode);
+		number.setSerialNum(nowNumber);
+		numberService.updateRzdbz(number);
+	    publisher.publish(new RzdbTs("1@"+retCode+"@"+loginIP));
+	}
+	
 }
