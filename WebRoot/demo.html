@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>WINDOWS 调用演示</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../../static/jquery-3.3.1.js" th:src="@{jquery-3.3.1.js}"  type="text/javascript"></script>
+</head>
+
+<body>
+	<div style="text-align: center">
+		<div>
+			<div>
+				<div>
+					<div>
+						<div>
+							<h1>Windows调用Android人证合一</h1>
+						</div>
+						M21设备地址: <input id="ip" value="192.168.1.113" required="required"
+							data-role="validate" name="ip" /> </br> 超时时间(秒) : <input
+							id="overTimer" value="60" required="required"
+							data-role="validate" name="overTimer" /> </br> 人脸验证精度: <input
+							id="precision" value="1" required="required" data-role="validate"
+							name="precision" /> </br> 人脸是否检活: <input id="checkAlive" value="0"
+							required="required" data-role="validate" name="checkAlive" /> <br></br>
+						<button style="width: 150px; height: 50px; font-size: 20px"
+							onclick="recognize();">开始人证合一</button>
+						<br></br>
+					    <button style="width: 150px; height: 50px; font-size: 20px"
+							onclick="readCard();">读取身份证</button>
+							
+					    <br></br>
+					    <button style="width: 150px; height: 50px; font-size: 20px"
+							onclick="sendCancle();">取消操作</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="retMsg"></div>
+	<img id="user_pic" src="" />
+
+  <script type="text/javascript">
+	
+		var Url = 'localhost:9001';
+		
+		function sendCancle(){
+		
+			document.getElementById("retMsg").innerHTML = "";
+			document.getElementById("user_pic").src = "";
+			var ip = $('#ip').val(); //M21设备IP地址
+			$.ajax({
+				type : 'GET',
+				url : 'http://' + Url + '/sendCancle',
+				data : {
+					'ip' : ip
+				},
+				dataType : 'jsonp',
+				async : true,
+				success : function(data) {
+					setMessageEmpty(data.Msg);
+				},
+				error : function(data) {
+					if (null != data && null != data.status) {
+						alert(data.status + ":请检查服务是否启动");
+					} else {
+						alert('请求失败');
+					}
+				}
+			});
+		}
+		
+		
+		//读身份证
+		function readCard(){
+			document.getElementById("retMsg").innerHTML = "";
+			document.getElementById("user_pic").src = "";
+			var ip = $('#ip').val(); //M21设备IP地址
+	    	var overTimer = $('#overTimer').val(); //超时时间 秒为单位　
+			$.ajax({
+				type : 'GET',
+				url : 'http://' + Url + '/sendReadCertNo',
+				data : {
+					
+					'ip' : ip,
+					'overTimer' : overTimer
+				},
+				dataType : 'jsonp',
+				async : true,
+				success : function(data) {
+
+					if (data.isSucc) {
+						var object_arr = data.Msg.split("|"); //分割
+						setMessage(object_arr);
+					} else {
+						setMessageEmpty(data.Msg);
+					}
+				},
+				error : function(data) {
+					if (null != data && null != data.status) {
+						alert(data.status + ":请检查服务是否启动");
+					} else {
+						alert('请求失败');
+					}
+				}
+			});
+		}
+		
+		
+		//发送人证合一请求
+		function recognize() {
+
+			var ip = $('#ip').val(); //M21设备IP地址
+			var overTimer = $('#overTimer').val(); //超时时间 秒为单位　
+			var precision = $('#precision').val(); //精度 0:低 1:中 2:高
+			var checkAlive = $('#checkAlive').val(); //活体验证 0:不打开 1:打开
+
+			document.getElementById("retMsg").innerHTML = "";
+			document.getElementById("user_pic").src = "";
+
+			$.ajax({
+				type : 'GET',
+				url : 'http://' + Url + '/sendRecongnize',
+				data : {
+					'ip' : ip,
+					'overTimer' : overTimer,
+					'precision' : precision,
+					'checkAlive' : checkAlive
+				},
+				dataType : 'jsonp',
+				async : true,
+				success : function(data) {
+
+					if (data.isSucc) {
+						var object_arr = data.Msg.split("|"); //分割
+						setMessage(object_arr);
+					} else {
+						setMessageEmpty(data.Msg);
+					}
+				},
+				error : function(data) {
+					if (null != data && null != data.status) {
+						alert(data.status + ":请检查服务是否启动");
+					} else {
+						alert('请求失败');
+					}
+				}
+			});
+		}
+
+		
+		function setMessageEmpty(retMsg) {
+			document.getElementById("retMsg").innerHTML = '<h3>验证失败:' + retMsg
+					+ '</h3>';
+			document.getElementById("user_pic").src = "";
+		}
+
+		
+		function setMessage(retMsg) {
+			divA = document.getElementById("retMsg");
+			divA.innerHTML = divA.innerHTML + '<h3>姓名:' + retMsg[0] + '</h3>';
+			divA.innerHTML = divA.innerHTML + '<h3>性别:' + retMsg[1] + '</h3>';
+			divA.innerHTML = divA.innerHTML + '<h3>民族:' + retMsg[2] + '</h3>';
+			divA.innerHTML = divA.innerHTML + '<h3>出生年月:' + retMsg[3] + '</h3>';
+			divA.innerHTML = divA.innerHTML + '<h3>出生地址:' + retMsg[4] + '</h3>';
+			divA.innerHTML = divA.innerHTML + '<h3>身份证号码:' + retMsg[5]
+					+ '</h3>';
+			divA.innerHTML = divA.innerHTML + '<h3>签发机关:' + retMsg[6] + '</h3>';
+			divA.innerHTML = divA.innerHTML + '<h3>有效期:' + retMsg[7] + "-"
+					+ retMsg[8] + '</h3>';
+			document.getElementById("user_pic").src = "data:image/png;base64,"
+					+ retMsg[9];
+		}
+	</script>
+
+</body>
+</html>
